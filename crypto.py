@@ -4,7 +4,6 @@
 #  Copyright (C) 2011 Yann GUIBET <yannguibet@gmail.com>
 #  See LICENSE for details.
 
-import os
 from ctypes import *
 
 def LoadLibrary():
@@ -272,7 +271,7 @@ class ECC_key:
         ephem = ECC_key()
         key = ephem.Get_EC_Key(pubkey_x, pubkey_y)
         pubkey = ephem.pubkey_x+ephem.pubkey_y
-        iv = os.urandom(16)
+        iv = rand(16)
         ctx = aes(key, iv, 1, mode='cbc')
         return iv + pubkey + ctx.ciphering(data)
     
