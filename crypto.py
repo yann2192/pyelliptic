@@ -4,6 +4,7 @@
 #  Copyright (C) 2011 Yann GUIBET <yannguibet@gmail.com>
 #  See LICENSE for details.
 
+import sys
 from ctypes import *
 
 def LoadLibrary():
@@ -293,7 +294,7 @@ def rand(size):
 
 def malloc(data, size):
     if data != 0:
-        if type(data) == type(''): data = data.encode()
+        if sys.version_info.major == 3 and type(data) == type(''): data = data.encode()
         buffer = create_string_buffer(data, size)
     else:
         buffer = create_string_buffer(size)
