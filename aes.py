@@ -41,6 +41,10 @@ class aes:
         self.size += i.value
         return buffer.raw[0:self.size]
 
+    def ciphering(self, input):
+        self.update(input)
+        return self.final()
+
     def __del__(self):
         openssl.EVP_CIPHER_CTX_cleanup(self.ctx)
         openssl.EVP_CIPHER_CTX_free(self.ctx)
