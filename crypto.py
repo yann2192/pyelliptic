@@ -7,24 +7,27 @@
 import sys
 from ctypes import *
 
+
 def LoadLibrary():
-	try:
-		libcrypto = cdll.LoadLibrary('libcrypto.so')
-	except:
-		try:
-			libcrypto = cdll.LoadLibrary('libeay32.dll')
-		except:
-			raise Exception("Couldn't load OpenSSL lib ...")
-	return libcrypto
+    libcrypto = None
+    try:
+        libcrypto = cdll.LoadLibrary('libcrypto.so')
+    except:
+        try:
+            libcrypto = cdll.LoadLibrary('libeay32.dll')
+        except:
+            raise Exception("Couldn't load OpenSSL lib ...")
+    return libcrypto
 
 libcrypto = LoadLibrary()
+
 
 class ECC_key:
     def __init__(self, pubkey_x = 0, pubkey_y = 0, privkey = 0):
         self.curve = 734 # == NID_sect571r1
         self.SIZE_ECC_KEY = 72 # With NID_sect571r1
         global libcrypto; self.libcrypto = libcrypto
-        if pubkey_x != 0 and pubkey_y != 0:		
+        if pubkey_x != 0 and pubkey_y != 0:
             if self.Check_EC_Key(privkey, pubkey_x, pubkey_y) < 0:
                 self.pubkey_x = 0
                 self.pubkey_y = 0
@@ -125,7 +128,7 @@ class ECC_key:
             self.libcrypto.BN_free(other_pub_key_y)
             self.libcrypto.EC_POINT_free(other_pub_key)
             self.libcrypto.EC_KEY_free(own_key)
-            self.libcrypto.BN_free(own_priv_key)	
+            self.libcrypto.BN_free(own_priv_key)    
 
 
     def Check_EC_Key(self, privkey, pubkey_x, pubkey_y):
@@ -173,7 +176,7 @@ class ECC_key:
             key = self.libcrypto.EC_KEY_new_by_curve_name(self.curve)
             if key == 0:
                 raise Exception("[OpenSSL] EC_KEY_new_by_curve_name FAIL ...")
-		
+        
             priv_key = self.libcrypto.BN_bin2bn(self.privkey, self.SIZE_ECC_KEY, 0)
             pub_key_x = self.libcrypto.BN_bin2bn(self.pubkey_x, self.SIZE_ECC_KEY, 0)
             pub_key_y = self.libcrypto.BN_bin2bn(self.pubkey_y, self.SIZE_ECC_KEY, 0)
@@ -197,7 +200,7 @@ class ECC_key:
             self.libcrypto.EVP_ecdsa.restype = c_void_p
             #
             self.libcrypto.EVP_DigestInit(md_ctx, self.libcrypto.EVP_ecdsa())
-			
+            
             if (self.libcrypto.EVP_DigestUpdate(md_ctx, buff, size)) == 0:
                 raise Exception("[OpenSSL] EVP_DigestUpdate FAIL ...")
             self.libcrypto.EVP_DigestFinal(md_ctx, digest, dgst_len)
@@ -286,11 +289,13 @@ class ECC_key:
         ctx = aes(key, iv, 0, mode='cbc')
         return ctx.ciphering(data)
 
+
 def rand(size):
     global libcrypto
     buffer = malloc(0, size)
     libcrypto.RAND_bytes(buffer, size)
     return buffer.raw
+
 
 def malloc(data, size):
     if data != 0:
@@ -300,8 +305,9 @@ def malloc(data, size):
         buffer = create_string_buffer(size)
     return buffer
 
+
 class aes:
-	def __init__(self, key, iv, do, mode='cfb'): # do == 1 => Encrypt; do == 0 => Decrypt
+    def __init__(self, key, iv, do, mode='cfb'): # do == 1 => Encrypt; do == 0 => Decrypt
             global libcrypto; self.libcrypto = libcrypto
             self.ctx = self.libcrypto.EVP_CIPHER_CTX_new()
             if do == 1 or do == 0:
@@ -319,7 +325,7 @@ class aes:
             else:
                 raise Exception("RTFM ...")
 
-	def ciphering(self, input):
+    def ciphering(self, input):
             i = c_int(len(input))
             buffer = malloc(0, len(input)+16)
             inp = malloc(input,len(input))
@@ -331,9 +337,10 @@ class aes:
                 raise Exception("[OpenSSL] EVP_CipherFinal_ex FAIL ...")
             return buffer.raw[0:i.value+y]
 
-	def __del__(self):
-		self.libcrypto.EVP_CIPHER_CTX_cleanup(self.ctx)
-		self.libcrypto.EVP_CIPHER_CTX_free(self.ctx)
+    def __del__(self):
+        self.libcrypto.EVP_CIPHER_CTX_cleanup(self.ctx)
+        self.libcrypto.EVP_CIPHER_CTX_free(self.ctx)
+
 
 def Hmac(k, m):
     key = malloc(k, len(k))
