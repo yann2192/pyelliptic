@@ -196,10 +196,8 @@ class _openssl:
 
 try:
     openssl = _openssl('libcrypto.so')
-except Exception as e:
-    print e
+except:
     try:
         openssl = _openssl('libeay32.dll')
-    except Exception as e:
-        print e
+    except:
         raise Exception("Couldn't load OpenSSL lib ...")
