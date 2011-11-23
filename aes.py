@@ -31,7 +31,6 @@ class aes:
         if openssl.EVP_CipherUpdate(self.ctx, openssl.byref(buffer), openssl.byref(i), inp, len(input)) == 0:
             raise Exception("[OpenSSL] EVP_CipherUpdate FAIL ...")
         self.size += i.value
-        print self.size
         self.ciphertext += buffer.raw[0:i.value]
 
     def final(self):
