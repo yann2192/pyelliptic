@@ -4,13 +4,13 @@
 #  Copyright (C) 2011 Yann GUIBET <yannguibet@gmail.com>
 #  See LICENSE for details.
 
-from openssl import openssl
+from .openssl import openssl
 
 
 class aes:
     def __init__(self, key, iv, do, mode='cfb'): # do == 1 => Encrypt; do == 0 => Decrypt
         self.ctx = openssl.EVP_CIPHER_CTX_new()
-        self.ciphertext = ""
+        self.ciphertext = b""
         self.size = 0
         if do == 1 or do == 0:
             k = openssl.malloc(key, len(key))
@@ -26,7 +26,7 @@ class aes:
 
     def update(self, input):
         i = openssl.c_int(0)
-        buffer = openssl.malloc("", len(input)+16)
+        buffer = openssl.malloc(b"", len(input)+16)
         inp = openssl.malloc(input,len(input))
         if openssl.EVP_CipherUpdate(self.ctx, openssl.byref(buffer), openssl.byref(i), inp, len(input)) == 0:
             raise Exception("[OpenSSL] EVP_CipherUpdate FAIL ...")

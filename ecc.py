@@ -4,8 +4,8 @@
 #  Copyright (C) 2011 Yann GUIBET <yannguibet@gmail.com>
 #  See LICENSE for details.
 
-from openssl import openssl
-from aes import aes
+from .openssl import openssl
+from .aes import aes
 
 
 class ecc:

@@ -4,7 +4,7 @@
 #  Copyright (C) 2011 Yann GUIBET <yannguibet@gmail.com>
 #  See LICENSE for details.
 
-from openssl import openssl
+from .openssl import openssl
 
 
 def hmac(k, m):
