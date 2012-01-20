@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+#  Copyright (C) 2011 Yann GUIBET <yannguibet@gmail.com>
+#  See LICENSE for details.
+
 import sys, ctypes
 
 openssl = None
