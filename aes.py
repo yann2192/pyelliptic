@@ -4,7 +4,7 @@
 #  Copyright (C) 2011 Yann GUIBET <yannguibet@gmail.com>
 #  See LICENSE for details.
 
-from .openssl import openssl
+from pyelliptic.openssl import openssl
 
 
 class aes:
