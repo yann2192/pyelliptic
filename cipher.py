@@ -7,26 +7,26 @@
 from pyelliptic.openssl import openssl
 
 
-class aes:
-    def __init__(self, key, iv, do, mode='cfb'): # do == 1 => Encrypt; do == 0 => Decrypt
+def get_all_cipher():
+    return openssl.cipher_algo.keys()
+
+
+class cipher_engine:
+    def __init__(self, key, iv, do, ciphername='aes-256-cbc'): # do == 1 => Encrypt; do == 0 => Decrypt
+        self.cipher = openssl.get_cipher(ciphername)
         self.ctx = openssl.EVP_CIPHER_CTX_new()
         self.ciphertext = b""
         self.size = 0
         if do == 1 or do == 0:
             k = openssl.malloc(key, len(key))
             IV = openssl.malloc(iv, len(iv))
-            if mode == 'cbc':
-                openssl.EVP_CipherInit_ex(self.ctx, openssl.EVP_aes_256_cbc(), 0, k, IV, do)
-            elif mode == 'cfb':
-                openssl.EVP_CipherInit_ex(self.ctx, openssl.EVP_aes_256_cfb128(), 0, k, IV, do)
-            else:
-                raise Exception("Unknown mode")
+            openssl.EVP_CipherInit_ex(self.ctx, self.cipher.get_pointer(), 0, k, IV, do)
         else:
             raise Exception("RTFM ...")
 
     def update(self, input):
         i = openssl.c_int(0)
-        buffer = openssl.malloc(b"", len(input)+16)
+        buffer = openssl.malloc(b"", len(input)+self.cipher.get_blocksize())
         inp = openssl.malloc(input,len(input))
         if openssl.EVP_CipherUpdate(self.ctx, openssl.byref(buffer), openssl.byref(i), inp, len(input)) == 0:
             raise Exception("[OpenSSL] EVP_CipherUpdate FAIL ...")
@@ -35,7 +35,7 @@ class aes:
 
     def final(self):
         i = openssl.c_int(0)
-        buffer = openssl.malloc(self.ciphertext, len(self.ciphertext)+16)
+        buffer = openssl.malloc(self.ciphertext, len(self.ciphertext)+self.cipher.get_blocksize())
         if (openssl.EVP_CipherFinal_ex(self.ctx, openssl.byref(buffer,self.size), openssl.byref(i))) == 0:
             raise Exception("[OpenSSL] EVP_CipherFinal_ex FAIL ...")
         self.size += i.value

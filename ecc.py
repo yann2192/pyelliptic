@@ -5,7 +5,7 @@
 #  See LICENSE for details.
 
 from pyelliptic.openssl import openssl
-from pyelliptic.aes import aes
+from pyelliptic.cipher import cipher_engine
 
 
 class ecc:
@@ -57,10 +57,7 @@ class ecc:
                 try:
                     self.Check_EC_Key(privkey, pubkeyx, pubkeyy)
                     break
-                except Exception as e:
-                    openssl.EC_KEY_free(key)
-                    if e.message != "[OpenSSL] EC_KEY_check_key FAIL ...":
-                        raise e
+                except: pass
             return privkey, pubkeyx, pubkeyy
 
         finally:
@@ -246,19 +243,22 @@ class ecc:
             openssl.EVP_MD_CTX_destroy(md_ctx)
 
     def encrypt(self, pubkey_x, pubkey_y, data):
+        ciphername = 'aes-256-cbc'
         ephem = ecc()
         key = ephem.Get_EC_Key(pubkey_x, pubkey_y)
         pubkey = ephem.pubkey_x+ephem.pubkey_y
-        iv = openssl.rand(16)
-        ctx = aes(key, iv, 1, mode='cbc')
+        iv = openssl.rand(openssl.get_cipher(ciphername).get_blocksize())
+        ctx = cipher_engine(key, iv, 1, ciphername)
         return iv + pubkey + ctx.ciphering(data)
 
     def decrypt(self, data):
-        iv = data[:16]
-        i = 16 + self.SIZE_ECC_KEY
-        pubkey_x = data[16:i]
+        ciphername = 'aes-256-cbc'
+        blocksize = openssl.get_cipher(ciphername).get_blocksize()
+        iv = data[:blocksize]
+        i = blocksize + self.SIZE_ECC_KEY
+        pubkey_x = data[blocksize:i]
         pubkey_y = data[i:i+self.SIZE_ECC_KEY]
         data = data[i+self.SIZE_ECC_KEY:]
         key = self.Get_EC_Key(pubkey_x, pubkey_y)
-        ctx = aes(key, iv, 0, mode='cbc')
+        ctx = cipher_engine(key, iv, 0, ciphername)
         return ctx.ciphering(data)

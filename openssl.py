@@ -8,6 +8,20 @@ import sys, ctypes
 
 openssl = None
 
+class cipher_name:
+    def __init__(self, name, pointer, blocksize):
+        self._name = name
+        self._pointer = pointer
+        self._blocksize = blocksize
+
+    def __str__(self):
+        return "Cipher : "+self._name+" | Blocksize : "+str(self._blocksize)+" | Fonction pointer : "+str(self._pointer)
+
+    def get_pointer(self): return self._pointer()
+
+    def get_name(self): return self._name
+
+    def get_blocksize(self): return self._blocksize
 
 class _openssl:
     def __init__(self, library):
@@ -114,6 +128,15 @@ class _openssl:
         self.EVP_CIPHER_CTX_new.restype = ctypes.c_void_p
         self.EVP_CIPHER_CTX_new.argtypes = []
 
+        # Cipher
+        self.EVP_aes_128_cfb128 = self._lib.EVP_aes_128_cfb128
+        self.EVP_aes_128_cfb128.restype = ctypes.c_void_p
+        self.EVP_aes_128_cfb128.argtypes = []
+
+        self.EVP_aes_128_cbc = self._lib.EVP_aes_128_cbc
+        self.EVP_aes_128_cbc.restype = ctypes.c_void_p
+        self.EVP_aes_128_cbc.argtypes = []
+
         self.EVP_aes_256_cfb128 = self._lib.EVP_aes_256_cfb128
         self.EVP_aes_256_cfb128.restype = ctypes.c_void_p
         self.EVP_aes_256_cfb128.argtypes = []
@@ -121,6 +144,23 @@ class _openssl:
         self.EVP_aes_256_cbc = self._lib.EVP_aes_256_cbc
         self.EVP_aes_256_cbc.restype = ctypes.c_void_p
         self.EVP_aes_256_cbc.argtypes = []
+
+        self.EVP_bf_cbc = self._lib.EVP_bf_cbc
+        self.EVP_bf_cbc.restype = ctypes.c_void_p
+        self.EVP_bf_cbc.argtypes = []
+
+        self.EVP_bf_cfb64 = self._lib.EVP_bf_cfb64
+        self.EVP_bf_cfb64.restype = ctypes.c_void_p
+        self.EVP_bf_cfb64.argtypes = []
+
+        self.cipher_algo = {
+                'aes-128-cfb': cipher_name('aes-128-cfb', self.EVP_aes_128_cfb128, 16),
+                'aes-128-cbc': cipher_name('aes-128-cbc', self.EVP_aes_128_cbc, 16),
+                'aes-256-cfb': cipher_name('aes-256-cfb', self.EVP_aes_256_cfb128, 16),
+                'aes-256-cbc': cipher_name('aes-256-cbc', self.EVP_aes_256_cbc, 16),
+                'bf-cfb': cipher_name('bf-cfb', self.EVP_bf_cfb64, 8),
+                'bf-cbc': cipher_name('bf-cbc', self.EVP_bf_cbc, 8),
+                }
 
         self.EVP_CIPHER_CTX_cleanup = self._lib.EVP_CIPHER_CTX_cleanup
         self.EVP_CIPHER_CTX_cleanup.restype = ctypes.c_int
@@ -185,6 +225,11 @@ class _openssl:
         self.HMAC = self._lib.HMAC
         self.HMAC.restype = ctypes.c_void_p
         self.HMAC.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p]
+
+    def get_cipher(self, name):
+        if name not in self.cipher_algo:
+            raise Exception("Unknown cipher")
+        return self.cipher_algo[name]
 
     def rand(self, size):
         buffer = self.malloc(0, size)
