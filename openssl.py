@@ -221,6 +221,9 @@ class _openssl:
         self.HMAC.restype = ctypes.c_void_p
         self.HMAC.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p]
 
+        self._set_ciphers()
+        self._set_curves()
+
 
     def _set_ciphers(self):
         self.cipher_algo = {
