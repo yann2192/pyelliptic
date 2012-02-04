@@ -7,11 +7,7 @@
 from pyelliptic.openssl import openssl
 
 
-def get_all_cipher():
-    return openssl.cipher_algo.keys()
-
-
-class cipher_engine:
+class cipher:
     def __init__(self, key, iv, do, ciphername='aes-256-cbc'): # do == 1 => Encrypt; do == 0 => Decrypt
         self.cipher = openssl.get_cipher(ciphername)
         self.ctx = openssl.EVP_CIPHER_CTX_new()
@@ -23,6 +19,10 @@ class cipher_engine:
             openssl.EVP_CipherInit_ex(self.ctx, self.cipher.get_pointer(), 0, k, IV, do)
         else:
             raise Exception("RTFM ...")
+
+    @staticmethod
+    def get_all_cipher():
+        return openssl.cipher_algo.keys()
 
     def update(self, input):
         i = openssl.c_int(0)
