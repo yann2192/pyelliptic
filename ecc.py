@@ -6,12 +6,12 @@
 
 from pyelliptic.openssl import openssl
 from pyelliptic.cipher import cipher
+from struct import pack, unpack
 
 
 class ecc:
     def __init__(self, pubkey_x = 0, pubkey_y = 0, privkey = 0):
         self.curve = 734 # == NID_sect571r1
-        self.SIZE_ECC_KEY = 72 # With NID_sect571r1
         if pubkey_x != 0 and pubkey_y != 0:
             if self.Check_EC_Key(privkey, pubkey_x, pubkey_y) < 0:
                 self.pubkey_x = 0
@@ -30,34 +30,32 @@ class ecc:
             pub_key_x = openssl.BN_new()
             pub_key_y = openssl.BN_new()
 
-            while 1:
-                key = openssl.EC_KEY_new_by_curve_name(self.curve)
-                if key == 0:
-                    raise Exception("[OpenSSL] EC_KEY_new_by_curve_name FAIL ...")
-                if (openssl.EC_KEY_generate_key(key)) == 0:
-                    raise Exception("[OpenSSL] EC_KEY_generate_key FAIL ...")
-                if (openssl.EC_KEY_check_key(key)) == 0:
-                    raise Exception("[OpenSSL] EC_KEY_check_key FAIL ...")
-                priv_key = openssl.EC_KEY_get0_private_key(key)
+            key = openssl.EC_KEY_new_by_curve_name(self.curve)
+            if key == 0:
+                raise Exception("[OpenSSL] EC_KEY_new_by_curve_name FAIL ...")
+            if (openssl.EC_KEY_generate_key(key)) == 0:
+                raise Exception("[OpenSSL] EC_KEY_generate_key FAIL ...")
+            if (openssl.EC_KEY_check_key(key)) == 0:
+                raise Exception("[OpenSSL] EC_KEY_check_key FAIL ...")
+            priv_key = openssl.EC_KEY_get0_private_key(key)
 
-                group = openssl.EC_KEY_get0_group(key)
-                pub_key = openssl.EC_KEY_get0_public_key(key)
+            group = openssl.EC_KEY_get0_group(key)
+            pub_key = openssl.EC_KEY_get0_public_key(key)
 
-                if (openssl.EC_POINT_get_affine_coordinates_GFp(group, pub_key, pub_key_x, pub_key_y, 0)) == 0:
-                    raise Exception("[OpenSSL] EC_POINT_get_affine_coordinates_GFp FAIL ...")
-                privkey = openssl.malloc(0, self.SIZE_ECC_KEY)
-                pubkeyx = openssl.malloc(0, self.SIZE_ECC_KEY)
-                pubkeyy = openssl.malloc(0, self.SIZE_ECC_KEY)
-                openssl.BN_bn2bin(priv_key,privkey)
-                privkey = privkey.raw
-                openssl.BN_bn2bin(pub_key_x,pubkeyx)
-                pubkeyx = pubkeyx.raw
-                openssl.BN_bn2bin(pub_key_y,pubkeyy)
-                pubkeyy = pubkeyy.raw
-                try:
-                    self.Check_EC_Key(privkey, pubkeyx, pubkeyy)
-                    break
-                except: pass
+            if (openssl.EC_POINT_get_affine_coordinates_GFp(group, pub_key, pub_key_x, pub_key_y, 0)) == 0:
+                raise Exception("[OpenSSL] EC_POINT_get_affine_coordinates_GFp FAIL ...")
+
+            privkey = openssl.malloc(0, openssl.BN_num_bytes(priv_key))
+            pubkeyx = openssl.malloc(0, openssl.BN_num_bytes(pub_key_x))
+            pubkeyy = openssl.malloc(0, openssl.BN_num_bytes(pub_key_y))
+            openssl.BN_bn2bin(priv_key,privkey)
+            privkey = privkey.raw
+            openssl.BN_bn2bin(pub_key_x,pubkeyx)
+            pubkeyx = pubkeyx.raw
+            openssl.BN_bn2bin(pub_key_y,pubkeyy)
+            pubkeyy = pubkeyy.raw
+            self.Check_EC_Key(privkey, pubkeyx, pubkeyy)
+
             return privkey, pubkeyx, pubkeyy
 
         finally:
@@ -73,8 +71,8 @@ class ecc:
             if other_key == 0:
                 raise Exception("[OpenSSL] EC_KEY_new_by_curve_name FAIL ...")
 
-            other_pub_key_x = openssl.BN_bin2bn(pubkey_x, self.SIZE_ECC_KEY, 0)
-            other_pub_key_y = openssl.BN_bin2bn(pubkey_y, self.SIZE_ECC_KEY, 0)
+            other_pub_key_x = openssl.BN_bin2bn(pubkey_x, len(pubkey_x), 0)
+            other_pub_key_y = openssl.BN_bin2bn(pubkey_y, len(pubkey_y), 0)
 
             other_group = openssl.EC_KEY_get0_group(other_key)
             other_pub_key = openssl.EC_POINT_new(other_group)
@@ -89,7 +87,7 @@ class ecc:
             own_key = openssl.EC_KEY_new_by_curve_name(self.curve)
             if own_key == 0:
                 raise Exception("[OpenSSL] EC_KEY_new_by_curve_name FAIL ...")
-            own_priv_key = openssl.BN_bin2bn(self.privkey, self.SIZE_ECC_KEY, 0)
+            own_priv_key = openssl.BN_bin2bn(self.privkey, len(self.privkey), 0)
 
             if (openssl.EC_KEY_set_private_key(own_key, own_priv_key)) == 0:
                 raise Exception("[OpenSSL] EC_KEY_set_private_key FAIL ...")
@@ -116,9 +114,9 @@ class ecc:
             if key == 0:
                 raise Exception("[OpenSSL] EC_KEY_new_by_curve_name FAIL ...")
             if privkey != 0:
-                priv_key = openssl.BN_bin2bn(privkey, self.SIZE_ECC_KEY, 0)
-            pub_key_x = openssl.BN_bin2bn(pubkey_x, self.SIZE_ECC_KEY, 0)
-            pub_key_y = openssl.BN_bin2bn(pubkey_y, self.SIZE_ECC_KEY, 0)
+                priv_key = openssl.BN_bin2bn(privkey, len(privkey), 0)
+            pub_key_x = openssl.BN_bin2bn(pubkey_x, len(pubkey_x), 0)
+            pub_key_y = openssl.BN_bin2bn(pubkey_y, len(pubkey_y), 0)
 
             if privkey != 0:
                 if (openssl.EC_KEY_set_private_key(key, priv_key)) == 0:
@@ -156,9 +154,9 @@ class ecc:
             if key == 0:
                 raise Exception("[OpenSSL] EC_KEY_new_by_curve_name FAIL ...")
 
-            priv_key = openssl.BN_bin2bn(self.privkey, self.SIZE_ECC_KEY, 0)
-            pub_key_x = openssl.BN_bin2bn(self.pubkey_x, self.SIZE_ECC_KEY, 0)
-            pub_key_y = openssl.BN_bin2bn(self.pubkey_y, self.SIZE_ECC_KEY, 0)
+            priv_key = openssl.BN_bin2bn(self.privkey, len(self.privkey), 0)
+            pub_key_x = openssl.BN_bin2bn(self.pubkey_x, len(self.pubkey_x), 0)
+            pub_key_y = openssl.BN_bin2bn(self.pubkey_y, len(self.pubkey_y), 0)
 
             if (openssl.EC_KEY_set_private_key(key, priv_key)) == 0:
                 raise Exception("[OpenSSL] EC_KEY_set_private_key FAIL ...")
@@ -206,8 +204,8 @@ class ecc:
             if key == 0:
                 raise Exception("[OpenSSL] EC_KEY_new_by_curve_name FAIL ...")
 
-            pub_key_x = openssl.BN_bin2bn(self.pubkey_x, self.SIZE_ECC_KEY, 0)
-            pub_key_y = openssl.BN_bin2bn(self.pubkey_y, self.SIZE_ECC_KEY, 0)
+            pub_key_x = openssl.BN_bin2bn(self.pubkey_x, len(self.pubkey_x), 0)
+            pub_key_y = openssl.BN_bin2bn(self.pubkey_y, len(self.pubkey_y), 0)
             group = openssl.EC_KEY_get0_group(key)
             pub_key = openssl.EC_POINT_new(group)
 
@@ -246,7 +244,7 @@ class ecc:
         ciphername = 'aes-256-cbc'
         ephem = ecc()
         key = ephem.Get_EC_Key(pubkey_x, pubkey_y)
-        pubkey = ephem.pubkey_x+ephem.pubkey_y
+        pubkey = pack('!H', len(ephem.pubkey_x))+ephem.pubkey_x+pack('!H', len(ephem.pubkey_y))+ephem.pubkey_y
         iv = openssl.rand(openssl.get_cipher(ciphername).get_blocksize())
         ctx = cipher(key, iv, 1, ciphername)
         return iv + pubkey + ctx.ciphering(data)
@@ -255,10 +253,16 @@ class ecc:
         ciphername = 'aes-256-cbc'
         blocksize = openssl.get_cipher(ciphername).get_blocksize()
         iv = data[:blocksize]
-        i = blocksize + self.SIZE_ECC_KEY
-        pubkey_x = data[blocksize:i]
-        pubkey_y = data[i:i+self.SIZE_ECC_KEY]
-        data = data[i+self.SIZE_ECC_KEY:]
+        i = blocksize
+        tmplen = unpack('!H', data[i:i+2])[0]
+        i += 2
+        pubkey_x = data[i:i+tmplen]
+        i += tmplen
+        tmplen = unpack('!H', data[i:i+2])[0]
+        i += 2
+        pubkey_y = data[i:i+tmplen]
+        i += tmplen
+        data = data[i:]
         key = self.Get_EC_Key(pubkey_x, pubkey_y)
         ctx = cipher(key, iv, 0, ciphername)
         return ctx.ciphering(data)
