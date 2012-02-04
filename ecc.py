@@ -10,22 +10,77 @@ from struct import pack, unpack
 
 
 class ecc:
-    def __init__(self, pubkey_x = 0, pubkey_y = 0, privkey = 0):
-        self.curve = 734 # == NID_sect571r1
-        if pubkey_x != 0 and pubkey_y != 0:
-            if self.Check_EC_Key(privkey, pubkey_x, pubkey_y) < 0:
-                self.pubkey_x = 0
-                self.pubkey_y = 0
-                self.privkey = 0
-                raise -1
-            else:
-                self.pubkey_x = pubkey_x
-                self.pubkey_y = pubkey_y
-                self.privkey = privkey
-        else:
-            self.privkey, self.pubkey_x, self.pubkey_y = self.Get_EC_PairKey()
+    def __init__(self, pubkey = None, privkey = None, pubkey_x = None, pubkey_y = None, raw_privkey = None, curve = 'sect283r1'):
+        if type(curve) == str:
+            self.curve = openssl.get_curve(curve)
+        else: self.curve = curve
 
-    def Get_EC_PairKey(self):
+        if pubkey_x != None and pubkey_y != None:
+            self._set_keys(pubkey_x, pubkey_y, raw_privkey)
+        elif pubkey != None:
+            curve, pubkey_x, pubkey_y, i = ecc._decode_pubkey(pubkey)
+            if privkey != None:
+                curve2, raw_privkey, i = ecc._decode_privkey(privkey)
+                if curve != curve2: raise Exception("Bad ECC keys ...")
+            self.curve = curve
+            self._set_keys(pubkey_x, pubkey_y, raw_privkey)
+        else:
+            self.privkey, self.pubkey_x, self.pubkey_y = self._generate()
+
+    def _set_keys(self, pubkey_x, pubkey_y, privkey):
+        if self.raw_check_key(privkey, pubkey_x, pubkey_y) < 0:
+            self.pubkey_x = None
+            self.pubkey_y = None
+            self.privkey = None
+            raise Exception("Bad ECC keys ...")
+        else:
+            self.pubkey_x = pubkey_x
+            self.pubkey_y = pubkey_y
+            self.privkey = privkey
+
+    @staticmethod
+    def get_curves():
+        return openssl.curves.keys()
+
+    def get_curve(self):
+        return openssl.get_curve_by_id(self.curve)
+
+    def get_curve_id(self):
+        return self.curve
+
+    def get_pubkey(self):
+        return pack('!H', self.curve)+pack('!H', len(self.pubkey_x))+self.pubkey_x+pack('!H', len(self.pubkey_y))+self.pubkey_y
+
+    def get_privkey(self):
+        return pack('!H', self.curve)+pack('!H', len(self.privkey))+self.privkey
+
+    @staticmethod
+    def _decode_pubkey(pubkey):
+        i = 0
+        curve = unpack('!H', pubkey[i:i+2])[0]
+        i += 2
+        tmplen = unpack('!H', pubkey[i:i+2])[0]
+        i += 2
+        pubkey_x = pubkey[i:i+tmplen]
+        i += tmplen
+        tmplen = unpack('!H', pubkey[i:i+2])[0]
+        i += 2
+        pubkey_y = pubkey[i:i+tmplen]
+        i += tmplen
+        return curve, pubkey_x, pubkey_y, i
+
+    @staticmethod
+    def _decode_privkey(privkey):
+        i = 0
+        curve = unpack('!H', privkey[i:i+2])[0]
+        i += 2
+        tmplen = unpack('!H', privkey[i:i+2])[0]
+        i += 2
+        privkey = privkey[i:i+tmplen]
+        i += tmplen
+        return curve, privkey, i
+
+    def _generate(self):
         try:
             pub_key_x = openssl.BN_new()
             pub_key_y = openssl.BN_new()
@@ -54,7 +109,7 @@ class ecc:
             pubkeyx = pubkeyx.raw
             openssl.BN_bn2bin(pub_key_y,pubkeyy)
             pubkeyy = pubkeyy.raw
-            self.Check_EC_Key(privkey, pubkeyx, pubkeyy)
+            self.raw_check_key(privkey, pubkeyx, pubkeyy)
 
             return privkey, pubkeyx, pubkeyy
 
@@ -63,7 +118,12 @@ class ecc:
             openssl.BN_free(pub_key_x)
             openssl.BN_free(pub_key_y)
 
-    def Get_EC_Key(self, pubkey_x, pubkey_y):
+    def get_ecdh_key(self, pubkey):
+        curve, pubkey_x, pubkey_y, i = ecc._decode_pubkey(pubkey)
+        if curve != self.curve: raise Exception("ECC keys must be from the same curve !")
+        return self.raw_get_ecdh_key(pubkey_x, pubkey_y)
+
+    def raw_get_ecdh_key(self, pubkey_x, pubkey_y):
         try:
             ecdh_keybuffer = openssl.malloc(0, 32)
 
@@ -108,17 +168,30 @@ class ecc:
             openssl.EC_KEY_free(own_key)
             openssl.BN_free(own_priv_key)
 
-    def Check_EC_Key(self, privkey, pubkey_x, pubkey_y):
+    def check_key(self, privkey, pubkey):
+        curve, pubkey_x, pubkey_y, i = ecc._decode_pubkey(pubkey)
+        if privkey == None:
+            raw_privkey = None
+            curve2 = curve
+        else:
+            curve2, raw_privkey, i = ecc._decode_pubkey(privkey)
+        if curve != curve2: raise Exception("Bad public and private key")
+        return self.raw_check_key(raw_privkey, pubkey_x, pubkey_y, curve)
+
+    def raw_check_key(self, privkey, pubkey_x, pubkey_y, curve=None):
+        if curve == None: curve = self.curve
+        elif type(curve) == str: curve = openssl.get_curve(curve)
+        else: curve = curve
         try:
-            key = openssl.EC_KEY_new_by_curve_name(self.curve)
+            key = openssl.EC_KEY_new_by_curve_name(curve)
             if key == 0:
                 raise Exception("[OpenSSL] EC_KEY_new_by_curve_name FAIL ...")
-            if privkey != 0:
+            if privkey != None:
                 priv_key = openssl.BN_bin2bn(privkey, len(privkey), 0)
             pub_key_x = openssl.BN_bin2bn(pubkey_x, len(pubkey_x), 0)
             pub_key_y = openssl.BN_bin2bn(pubkey_y, len(pubkey_y), 0)
 
-            if privkey != 0:
+            if privkey != None:
                 if (openssl.EC_KEY_set_private_key(key, priv_key)) == 0:
                     raise Exception("[OpenSSL] EC_KEY_set_private_key FAIL ...")
 
@@ -138,9 +211,9 @@ class ecc:
             openssl.BN_free(pub_key_x)
             openssl.BN_free(pub_key_y)
             openssl.EC_POINT_free(pub_key)
-            if privkey != 0: openssl.BN_free(priv_key)
+            if privkey != None: openssl.BN_free(priv_key)
 
-    def Sign(self, inputb):
+    def sign(self, inputb):
         try:
             size = len(inputb)
             buff = openssl.malloc(inputb, size)
@@ -191,7 +264,7 @@ class ecc:
             openssl.EC_POINT_free(pub_key)
             openssl.EVP_MD_CTX_destroy(md_ctx)
 
-    def Check_sign(self, sig, inputb):
+    def verify(self, sig, inputb):
         try:
             bsig = openssl.malloc(sig, len(sig))
             binputb = openssl.malloc(inputb, len(inputb))
@@ -240,11 +313,16 @@ class ecc:
             openssl.EC_POINT_free(pub_key)
             openssl.EVP_MD_CTX_destroy(md_ctx)
 
-    def encrypt(self, pubkey_x, pubkey_y, data):
+    def encrypt(self, data, pubkey, ephemcurve=None):
+        curve, pubkey_x, pubkey_y, i = ecc._decode_pubkey(pubkey)
+        return self.raw_encrypt(data, pubkey_x, pubkey_y, curve=curve, ephemcurve=ephemcurve)
+
+    def raw_encrypt(self, data, pubkey_x, pubkey_y, curve='sect283r1', ephemcurve=None):
+        if ephemcurve == None: ephemcurve = curve
         ciphername = 'aes-256-cbc'
-        ephem = ecc()
-        key = ephem.Get_EC_Key(pubkey_x, pubkey_y)
-        pubkey = pack('!H', len(ephem.pubkey_x))+ephem.pubkey_x+pack('!H', len(ephem.pubkey_y))+ephem.pubkey_y
+        ephem = ecc(curve=ephemcurve)
+        key = ephem.raw_get_ecdh_key(pubkey_x, pubkey_y)
+        pubkey = ephem.get_pubkey()
         iv = openssl.rand(openssl.get_cipher(ciphername).get_blocksize())
         ctx = cipher(key, iv, 1, ciphername)
         return iv + pubkey + ctx.ciphering(data)
@@ -254,15 +332,10 @@ class ecc:
         blocksize = openssl.get_cipher(ciphername).get_blocksize()
         iv = data[:blocksize]
         i = blocksize
-        tmplen = unpack('!H', data[i:i+2])[0]
-        i += 2
-        pubkey_x = data[i:i+tmplen]
-        i += tmplen
-        tmplen = unpack('!H', data[i:i+2])[0]
-        i += 2
-        pubkey_y = data[i:i+tmplen]
-        i += tmplen
+        curve, pubkey_x, pubkey_y, i2 = ecc._decode_pubkey(data[i:])
+        i += i2
         data = data[i:]
-        key = self.Get_EC_Key(pubkey_x, pubkey_y)
+        key = self.raw_get_ecdh_key(pubkey_x, pubkey_y)
         ctx = cipher(key, iv, 0, ciphername)
         return ctx.ciphering(data)
+

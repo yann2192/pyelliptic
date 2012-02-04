@@ -278,6 +278,20 @@ class _openssl:
             raise Exception("Unknown cipher")
         return self.cipher_algo[name]
 
+    def get_curve(self, name):
+        if name not in self.curves:
+            raise Exception("Unknown curve")
+        return self.curves[name]
+
+    def get_curve_by_id(self, id):
+        res = None
+        for i in self.curves:
+            if self.curves[i] == id:
+                res = i
+                break
+        if res == None: raise Exception("Unknown curve")
+        return res
+
     def rand(self, size):
         buffer = self.malloc(0, size)
         openssl.RAND_bytes(buffer, size)
