@@ -13,5 +13,5 @@ __all__ = [
 
 from pyelliptic.openssl import openssl
 from pyelliptic.ecc import ecc
-from pyelliptic.cipher import *
+from pyelliptic.cipher import cipher
 from pyelliptic.hmac import hmac

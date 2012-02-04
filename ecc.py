@@ -5,7 +5,7 @@
 #  See LICENSE for details.
 
 from pyelliptic.openssl import openssl
-from pyelliptic.cipher import cipher_engine
+from pyelliptic.cipher import cipher
 
 
 class ecc:
@@ -248,7 +248,7 @@ class ecc:
         key = ephem.Get_EC_Key(pubkey_x, pubkey_y)
         pubkey = ephem.pubkey_x+ephem.pubkey_y
         iv = openssl.rand(openssl.get_cipher(ciphername).get_blocksize())
-        ctx = cipher_engine(key, iv, 1, ciphername)
+        ctx = cipher(key, iv, 1, ciphername)
         return iv + pubkey + ctx.ciphering(data)
 
     def decrypt(self, data):
@@ -260,5 +260,5 @@ class ecc:
         pubkey_y = data[i:i+self.SIZE_ECC_KEY]
         data = data[i+self.SIZE_ECC_KEY:]
         key = self.Get_EC_Key(pubkey_x, pubkey_y)
-        ctx = cipher_engine(key, iv, 0, ciphername)
+        ctx = cipher(key, iv, 0, ciphername)
         return ctx.ciphering(data)
