@@ -157,15 +157,6 @@ class _openssl:
         self.EVP_bf_cfb64.restype = ctypes.c_void_p
         self.EVP_bf_cfb64.argtypes = []
 
-        self.cipher_algo = {
-                'aes-128-cfb': cipher_name('aes-128-cfb', self.EVP_aes_128_cfb128, 16),
-                'aes-128-cbc': cipher_name('aes-128-cbc', self.EVP_aes_128_cbc, 16),
-                'aes-256-cfb': cipher_name('aes-256-cfb', self.EVP_aes_256_cfb128, 16),
-                'aes-256-cbc': cipher_name('aes-256-cbc', self.EVP_aes_256_cbc, 16),
-                'bf-cfb': cipher_name('bf-cfb', self.EVP_bf_cfb64, 8),
-                'bf-cbc': cipher_name('bf-cbc', self.EVP_bf_cbc, 8),
-                }
-
         self.EVP_CIPHER_CTX_cleanup = self._lib.EVP_CIPHER_CTX_cleanup
         self.EVP_CIPHER_CTX_cleanup.restype = ctypes.c_int
         self.EVP_CIPHER_CTX_cleanup.argtypes = [ctypes.c_void_p]
@@ -229,6 +220,52 @@ class _openssl:
         self.HMAC = self._lib.HMAC
         self.HMAC.restype = ctypes.c_void_p
         self.HMAC.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p]
+
+
+    def _set_ciphers(self):
+        self.cipher_algo = {
+                'aes-128-cfb': cipher_name('aes-128-cfb', self.EVP_aes_128_cfb128, 16),
+                'aes-128-cbc': cipher_name('aes-128-cbc', self.EVP_aes_128_cbc, 16),
+                'aes-256-cfb': cipher_name('aes-256-cfb', self.EVP_aes_256_cfb128, 16),
+                'aes-256-cbc': cipher_name('aes-256-cbc', self.EVP_aes_256_cbc, 16),
+                'bf-cfb': cipher_name('bf-cfb', self.EVP_bf_cfb64, 8),
+                'bf-cbc': cipher_name('bf-cbc', self.EVP_bf_cbc, 8),
+                }
+
+    def _set_curves(self):
+        self.curves = {
+                'secp112r1': 704,
+                'secp112r2': 705,
+                'secp128r1': 706,
+                'secp128r2': 707,
+                'secp160k1': 708,
+                'secp160r1': 709,
+                'secp160r2': 710,
+                'secp192k1': 711,
+                'secp224k1': 712,
+                'secp224r1': 713,
+                'secp256k1': 714,
+                'secp384r1': 715,
+                'secp521r1': 716,
+                'sect113r1': 717,
+                'sect113r2': 718,
+                'sect131r1': 719,
+                'sect131r2': 720,
+                'sect163k1': 721,
+                'sect163r1': 722,
+                'sect163r2': 723,
+                'sect193r1': 724,
+                'sect193r2': 725,
+                'sect233k1': 726,
+                'sect233r1': 727,
+                'sect239k1': 728,
+                'sect283k1': 729,
+                'sect283r1': 730,
+                'sect409k1': 731,
+                'sect409r1': 732,
+                'sect571k1': 733,
+                'sect571r1': 734,
+                }
 
     def BN_num_bytes(self, x):
         return int((self.BN_num_bits(x)+7)/8)
