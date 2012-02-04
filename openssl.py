@@ -40,6 +40,10 @@ class _openssl:
         self.BN_free.restype = None
         self.BN_free.argtypes = [ctypes.c_void_p]
 
+        self.BN_num_bits = self._lib.BN_num_bits
+        self.BN_num_bits.restype = ctypes.c_int
+        self.BN_num_bits.argtypes = [ctypes.c_void_p]
+
         self.BN_bn2bin = self._lib.BN_bn2bin
         self.BN_bn2bin.restype = ctypes.c_int
         self.BN_bn2bin.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
@@ -225,6 +229,9 @@ class _openssl:
         self.HMAC = self._lib.HMAC
         self.HMAC.restype = ctypes.c_void_p
         self.HMAC.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p]
+
+    def BN_num_bytes(self, x):
+        return (self.BN_num_bits(x)+7)/8
 
     def get_cipher(self, name):
         if name not in self.cipher_algo:
