@@ -231,7 +231,7 @@ class _openssl:
         self.HMAC.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p]
 
     def BN_num_bytes(self, x):
-        return (self.BN_num_bits(x)+7)/8
+        return int((self.BN_num_bits(x)+7)/8)
 
     def get_cipher(self, name):
         if name not in self.cipher_algo:
