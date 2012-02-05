@@ -24,7 +24,13 @@ class cipher_name:
     def get_blocksize(self): return self._blocksize
 
 class _openssl:
+    """
+    Wrapper for OpenSSL using ctypes
+    """
     def __init__(self, library):
+        """
+        Build the wrapper
+        """
         self._lib = ctypes.CDLL(library)
 
         self.pointer = ctypes.pointer
@@ -271,19 +277,31 @@ class _openssl:
                 }
 
     def BN_num_bytes(self, x):
+        """
+        returns the length of a BN (OpenSSl API)
+        """
         return int((self.BN_num_bits(x)+7)/8)
 
     def get_cipher(self, name):
+        """
+        returns the OpenSSL cipher instance
+        """
         if name not in self.cipher_algo:
             raise Exception("Unknown cipher")
         return self.cipher_algo[name]
 
     def get_curve(self, name):
+        """
+        returns the id of a elliptic curve
+        """
         if name not in self.curves:
             raise Exception("Unknown curve")
         return self.curves[name]
 
     def get_curve_by_id(self, id):
+        """
+        returns the name of a elliptic curve with his id
+        """
         res = None
         for i in self.curves:
             if self.curves[i] == id:
@@ -293,11 +311,17 @@ class _openssl:
         return res
 
     def rand(self, size):
+        """
+        OpenSSL random function
+        """
         buffer = self.malloc(0, size)
         openssl.RAND_bytes(buffer, size)
         return buffer.raw
 
     def malloc(self, data, size):
+        """
+        returns a create_string_buffer (ctypes)
+        """
         buffer = None
         if data != 0:
             if sys.version_info.major == 3 and type(data) == type(''): data = data.encode()

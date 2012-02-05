@@ -8,6 +8,9 @@ from pyelliptic.openssl import openssl
 
 
 def hmac(k, m):
+    """
+    Compute the key and the message with HMAC SHA512
+    """
     key = openssl.malloc(k, len(k))
     d = openssl.malloc(m, len(m))
     md = openssl.malloc(0, 64)

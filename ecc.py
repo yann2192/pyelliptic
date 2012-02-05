@@ -10,7 +10,36 @@ from struct import pack, unpack
 
 
 class ecc:
+    """
+    Asymmetric encryption with Elliptic Curve Cryptography (ECC)
+    ECDH, ECDSA and ECIES
+
+        import pyelliptic
+
+        alice = pyelliptic.ecc() # default curve: sect283r1
+        bob = pyelliptic.ecc(curve='sect571r1')
+
+        ciphertext = alice.encrypt("Hello Bob", bob.get_pubkey())
+        print bob.decrypt(ciphertext)
+
+        signature = bob.sign("Hello Alice")
+        # alice work :
+        print pyelliptic.ecc(pubkey=bob.get_pubkey()).verify(signature, "Hello Alice")
+
+        # ERROR !!!
+        try:
+            key = alice.get_ecdh_key(bob.get_pubkey())
+        except: print("For ECDH key agreement, the Keys must be defined on the same curve !")
+
+        alice = pyelliptic.ecc(curve='sect571r1')
+        print alice.get_ecdh_key(bob.get_pubkey()).encode('hex')
+        print bob.get_ecdh_key(alice.get_pubkey()).encode('hex')
+
+    """
     def __init__(self, pubkey = None, privkey = None, pubkey_x = None, pubkey_y = None, raw_privkey = None, curve = 'sect283r1'):
+        """
+        For a normal and High level use, specifie pubkey, privkey (if you need) and the curve
+        """
         if type(curve) == str:
             self.curve = openssl.get_curve(curve)
         else: self.curve = curve
@@ -40,6 +69,9 @@ class ecc:
 
     @staticmethod
     def get_curves():
+        """
+        static method, returns the list of all the curves available
+        """
         return openssl.curves.keys()
 
     def get_curve(self):
@@ -49,9 +81,15 @@ class ecc:
         return self.curve
 
     def get_pubkey(self):
+        """
+        High level function which returns curve(2) + len_of_pubkeyX(2) + pubkeyX + len_of_pubkeyY + pubkeyY
+        """
         return pack('!H', self.curve)+pack('!H', len(self.pubkey_x))+self.pubkey_x+pack('!H', len(self.pubkey_y))+self.pubkey_y
 
     def get_privkey(self):
+        """
+        High level function which returns curve(2) + len_of_privkey(2) + privkey
+        """
         return pack('!H', self.curve)+pack('!H', len(self.privkey))+self.privkey
 
     @staticmethod
@@ -119,6 +157,9 @@ class ecc:
             openssl.BN_free(pub_key_y)
 
     def get_ecdh_key(self, pubkey):
+        """
+        High level function. Compute public key with the local private key and returns a 256bits shared key
+        """
         curve, pubkey_x, pubkey_y, i = ecc._decode_pubkey(pubkey)
         if curve != self.curve: raise Exception("ECC keys must be from the same curve !")
         return self.raw_get_ecdh_key(pubkey_x, pubkey_y)
@@ -169,6 +210,10 @@ class ecc:
             openssl.BN_free(own_priv_key)
 
     def check_key(self, privkey, pubkey):
+        """
+        Check the public key and the private key.
+        The private key is optional (replace by None)
+        """
         curve, pubkey_x, pubkey_y, i = ecc._decode_pubkey(pubkey)
         if privkey == None:
             raw_privkey = None
@@ -214,6 +259,9 @@ class ecc:
             if privkey != None: openssl.BN_free(priv_key)
 
     def sign(self, inputb):
+        """
+        Sign the input with ECDSA method and returns the signature
+        """
         try:
             size = len(inputb)
             buff = openssl.malloc(inputb, size)
@@ -265,6 +313,9 @@ class ecc:
             openssl.EVP_MD_CTX_destroy(md_ctx)
 
     def verify(self, sig, inputb):
+        """
+        Verify the signature with the input and the local public key. Returns a boolean
+        """
         try:
             bsig = openssl.malloc(sig, len(sig))
             binputb = openssl.malloc(inputb, len(inputb))
@@ -314,6 +365,9 @@ class ecc:
             openssl.EVP_MD_CTX_destroy(md_ctx)
 
     def encrypt(self, data, pubkey, ephemcurve=None):
+        """
+        Encrypt data with ECIES method using the public key of the recipient.
+        """
         curve, pubkey_x, pubkey_y, i = ecc._decode_pubkey(pubkey)
         return self.raw_encrypt(data, pubkey_x, pubkey_y, curve=curve, ephemcurve=ephemcurve)
 
@@ -328,6 +382,9 @@ class ecc:
         return iv + pubkey + ctx.ciphering(data)
 
     def decrypt(self, data):
+        """
+        Decrypt data with ECIES method using the local private key
+        """
         ciphername = 'aes-256-cbc'
         blocksize = openssl.get_cipher(ciphername).get_blocksize()
         iv = data[:blocksize]
