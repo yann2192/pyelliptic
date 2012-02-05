@@ -23,13 +23,13 @@ class ecc:
         print bob.decrypt(ciphertext)
 
         signature = bob.sign("Hello Alice")
-        # alice work :
+        # alice's job :
         print pyelliptic.ecc(pubkey=bob.get_pubkey()).verify(signature, "Hello Alice")
 
         # ERROR !!!
         try:
             key = alice.get_ecdh_key(bob.get_pubkey())
-        except: print("For ECDH key agreement, the Keys must be defined on the same curve !")
+        except: print("For ECDH key agreement, the keys must be defined on the same curve !")
 
         alice = pyelliptic.ecc(curve='sect571r1')
         print alice.get_ecdh_key(bob.get_pubkey()).encode('hex')
