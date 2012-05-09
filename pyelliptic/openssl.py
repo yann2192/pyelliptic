@@ -336,4 +336,7 @@ except:
     try:
         openssl = _openssl('libeay32.dll')
     except:
-        raise Exception("Couldn't load OpenSSL lib ...")
+        try:
+            openssl = _openssl('libcrypto.dylib')
+        except:
+            raise Exception("Couldn't load OpenSSL lib ...")
