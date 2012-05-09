@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="pyelliptic",
-    version='1.0',
+    version='1.1',
     url='https://github.com/yann2192/pyelliptic',
     license='GPL',
     description="Python OpenSSL wrapper. For modern cryptography with ECC, AES, HMAC, Blowfish, ...",
@@ -12,6 +12,7 @@ setup(
     classifiers=[
         'Operating System :: Unix',
         'Operating System :: Microsoft :: Windows',
+        'Environment :: MacOS X',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
         'Topic :: Security :: Cryptography',
