@@ -32,7 +32,8 @@ class Cipher:
         if do == 1 or do == 0:
             k = OpenSSL.malloc(key, len(key))
             IV = OpenSSL.malloc(iv, len(iv))
-            OpenSSL.EVP_CipherInit_ex(self.ctx, self.cipher.get_pointer(), 0, k, IV, do)
+            OpenSSL.EVP_CipherInit_ex(
+                self.ctx, self.cipher.get_pointer(), 0, k, IV, do)
         else:
             raise Exception("RTFM ...")
 
@@ -55,17 +56,21 @@ class Cipher:
 
     def update(self, input):
         i = OpenSSL.c_int(0)
-        buffer = OpenSSL.malloc(b"", len(input)+self.cipher.get_blocksize())
-        inp = OpenSSL.malloc(input,len(input))
-        if OpenSSL.EVP_CipherUpdate(self.ctx, OpenSSL.byref(buffer), OpenSSL.byref(i), inp, len(input)) == 0:
+        buffer = OpenSSL.malloc(b"", len(input) + self.cipher.get_blocksize())
+        inp = OpenSSL.malloc(input, len(input))
+        if OpenSSL.EVP_CipherUpdate(self.ctx, OpenSSL.byref(buffer),
+                                    OpenSSL.byref(i), inp, len(input)) == 0:
             raise Exception("[OpenSSL] EVP_CipherUpdate FAIL ...")
         self.size += i.value
         self.ciphertext += buffer.raw[0:i.value]
 
     def final(self):
         i = OpenSSL.c_int(0)
-        buffer = OpenSSL.malloc(self.ciphertext, len(self.ciphertext)+self.cipher.get_blocksize())
-        if (OpenSSL.EVP_CipherFinal_ex(self.ctx, OpenSSL.byref(buffer,self.size), OpenSSL.byref(i))) == 0:
+        buffer = OpenSSL.malloc(self.ciphertext, len(
+            self.ciphertext) + self.cipher.get_blocksize())
+        if (OpenSSL.EVP_CipherFinal_ex(self.ctx,
+                                       OpenSSL.byref(buffer, self.size),
+                                       OpenSSL.byref(i))) == 0:
             raise Exception("[OpenSSL] EVP_CipherFinal_ex FAIL ...")
         self.size += i.value
         return buffer.raw[0:self.size]

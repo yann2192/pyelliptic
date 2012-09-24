@@ -9,7 +9,7 @@ __all__ = [
     'ecc',
     'cipher',
     'hmac',
-    ]
+]
 
 from .openssl import OpenSSL
 from .ecc import ECC
