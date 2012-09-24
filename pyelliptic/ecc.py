@@ -364,14 +364,16 @@ class ecc:
             openssl.EC_POINT_free(pub_key)
             openssl.EVP_MD_CTX_destroy(md_ctx)
 
-    def encrypt(self, data, pubkey, ephemcurve=None):
+    @staticmethod
+    def encrypt(data, pubkey, ephemcurve=None):
         """
         Encrypt data with ECIES method using the public key of the recipient.
         """
         curve, pubkey_x, pubkey_y, i = ecc._decode_pubkey(pubkey)
-        return self.raw_encrypt(data, pubkey_x, pubkey_y, curve=curve, ephemcurve=ephemcurve)
+        return ecc.raw_encrypt(data, pubkey_x, pubkey_y, curve=curve, ephemcurve=ephemcurve)
 
-    def raw_encrypt(self, data, pubkey_x, pubkey_y, curve='sect283r1', ephemcurve=None):
+    @staticmethod
+    def raw_encrypt(data, pubkey_x, pubkey_y, curve='sect283r1', ephemcurve=None):
         if ephemcurve == None: ephemcurve = curve
         ciphername = 'aes-256-cbc'
         ephem = ecc(curve=ephemcurve)
