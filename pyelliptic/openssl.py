@@ -108,7 +108,7 @@ class _openssl:
 
         self.EC_POINT_new = self._lib.EC_POINT_new
         self.EC_POINT_new.restype = ctypes.c_void_p
-        self.EC_POINT_new.argtypes = []
+        self.EC_POINT_new.argtypes = [ctypes.c_void_p]
 
         self.EC_POINT_free = self._lib.EC_POINT_free
         self.EC_POINT_free.restype = None
