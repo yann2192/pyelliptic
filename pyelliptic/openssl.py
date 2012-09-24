@@ -6,9 +6,9 @@
 
 import sys, ctypes
 
-openssl = None
+OpenSSL = None
 
-class cipher_name:
+class CipherName:
     def __init__(self, name, pointer, blocksize):
         self._name = name
         self._pointer = pointer
@@ -23,7 +23,7 @@ class cipher_name:
 
     def get_blocksize(self): return self._blocksize
 
-class _openssl:
+class _OpenSSL:
     """
     Wrapper for OpenSSL using ctypes
     """
@@ -233,12 +233,12 @@ class _openssl:
 
     def _set_ciphers(self):
         self.cipher_algo = {
-                'aes-128-cfb': cipher_name('aes-128-cfb', self.EVP_aes_128_cfb128, 16),
-                'aes-128-cbc': cipher_name('aes-128-cbc', self.EVP_aes_128_cbc, 16),
-                'aes-256-cfb': cipher_name('aes-256-cfb', self.EVP_aes_256_cfb128, 16),
-                'aes-256-cbc': cipher_name('aes-256-cbc', self.EVP_aes_256_cbc, 16),
-                'bf-cfb': cipher_name('bf-cfb', self.EVP_bf_cfb64, 8),
-                'bf-cbc': cipher_name('bf-cbc', self.EVP_bf_cbc, 8),
+                'aes-128-cfb': CipherName('aes-128-cfb', self.EVP_aes_128_cfb128, 16),
+                'aes-128-cbc': CipherName('aes-128-cbc', self.EVP_aes_128_cbc, 16),
+                'aes-256-cfb': CipherName('aes-256-cfb', self.EVP_aes_256_cfb128, 16),
+                'aes-256-cbc': CipherName('aes-256-cbc', self.EVP_aes_256_cbc, 16),
+                'bf-cfb': CipherName('bf-cfb', self.EVP_bf_cfb64, 8),
+                'bf-cbc': CipherName('bf-cbc', self.EVP_bf_cbc, 8),
                 }
 
     def _set_curves(self):
@@ -315,7 +315,7 @@ class _openssl:
         OpenSSL random function
         """
         buffer = self.malloc(0, size)
-        openssl.RAND_bytes(buffer, size)
+        self.RAND_bytes(buffer, size)
         return buffer.raw
 
     def malloc(self, data, size):
@@ -325,18 +325,18 @@ class _openssl:
         buffer = None
         if data != 0:
             if sys.version_info.major == 3 and type(data) == type(''): data = data.encode()
-            buffer = openssl.create_string_buffer(data, size)
+            buffer = self.create_string_buffer(data, size)
         else:
             buffer = self.create_string_buffer(size)
         return buffer
 
 try:
-    openssl = _openssl('libcrypto.so')
+    OpenSSL = _OpenSSL('libcrypto.so')
 except:
     try:
-        openssl = _openssl('libeay32.dll')
+        OpenSSL = _OpenSSL('libeay32.dll')
     except:
         try:
-            openssl = _openssl('libcrypto.dylib')
+            OpenSSL = _OpenSSL('libcrypto.dylib')
         except:
             raise Exception("Couldn't load OpenSSL lib ...")

@@ -5,13 +5,13 @@
 __version__ = '1.2'
 
 __all__ = [
-    'openssl',
+    'OpenSSL',
     'ecc',
     'cipher',
     'hmac',
     ]
 
-from pyelliptic.openssl import openssl
-from pyelliptic.ecc import ecc
-from pyelliptic.cipher import cipher
-from pyelliptic.hmac import hmac
+from .openssl import OpenSSL
+from .ecc import ECC
+from .cipher import Cipher
+from .hmac import HMAC
