@@ -155,17 +155,33 @@ class _OpenSSL:
         self.EVP_aes_128_cfb128.restype = ctypes.c_void_p
         self.EVP_aes_128_cfb128.argtypes = []
 
-        self.EVP_aes_128_cbc = self._lib.EVP_aes_128_cbc
-        self.EVP_aes_128_cbc.restype = ctypes.c_void_p
-        self.EVP_aes_128_cbc.argtypes = []
-
         self.EVP_aes_256_cfb128 = self._lib.EVP_aes_256_cfb128
         self.EVP_aes_256_cfb128.restype = ctypes.c_void_p
         self.EVP_aes_256_cfb128.argtypes = []
 
+        self.EVP_aes_128_cbc = self._lib.EVP_aes_128_cbc
+        self.EVP_aes_128_cbc.restype = ctypes.c_void_p
+        self.EVP_aes_128_cbc.argtypes = []
+
         self.EVP_aes_256_cbc = self._lib.EVP_aes_256_cbc
         self.EVP_aes_256_cbc.restype = ctypes.c_void_p
         self.EVP_aes_256_cbc.argtypes = []
+
+        self.EVP_aes_128_ctr = self._lib.EVP_aes_128_ctr
+        self.EVP_aes_128_ctr.restype = ctypes.c_void_p
+        self.EVP_aes_128_ctr.argtypes = []
+
+        self.EVP_aes_256_ctr = self._lib.EVP_aes_256_ctr
+        self.EVP_aes_256_ctr.restype = ctypes.c_void_p
+        self.EVP_aes_256_ctr.argtypes = []
+
+        self.EVP_aes_128_ofb = self._lib.EVP_aes_128_ofb
+        self.EVP_aes_128_ofb.restype = ctypes.c_void_p
+        self.EVP_aes_128_ofb.argtypes = []
+
+        self.EVP_aes_256_ofb = self._lib.EVP_aes_256_ofb
+        self.EVP_aes_256_ofb.restype = ctypes.c_void_p
+        self.EVP_aes_256_ofb.argtypes = []
 
         self.EVP_bf_cbc = self._lib.EVP_bf_cbc
         self.EVP_bf_cbc.restype = ctypes.c_void_p
