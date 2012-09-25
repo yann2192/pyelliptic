@@ -16,8 +16,8 @@ Require OpenSSL
 
 ### Symmetric cryptography
 
-* AES-128 (CFB and CBC)
-* AES-256 (CFB and CBC)
+* AES-128 (CBC, OFB, CFB, CTR)
+* AES-256 (CBC, OFB, CFB, CTR)
 * Blowfish (CFB and CBC)
 
 ### Other
