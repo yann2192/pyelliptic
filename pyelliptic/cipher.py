@@ -27,8 +27,6 @@ class Cipher:
         """
         self.cipher = OpenSSL.get_cipher(ciphername)
         self.ctx = OpenSSL.EVP_CIPHER_CTX_new()
-        self.ciphertext = b""
-        self.size = 0
         if do == 1 or do == 0:
             k = OpenSSL.malloc(key, len(key))
             IV = OpenSSL.malloc(iv, len(iv))
@@ -61,26 +59,22 @@ class Cipher:
         if OpenSSL.EVP_CipherUpdate(self.ctx, OpenSSL.byref(buffer),
                                     OpenSSL.byref(i), inp, len(input)) == 0:
             raise Exception("[OpenSSL] EVP_CipherUpdate FAIL ...")
-        self.size += i.value
-        self.ciphertext += buffer.raw[0:i.value]
+        return buffer.raw[0:i.value]
 
     def final(self):
         i = OpenSSL.c_int(0)
-        buffer = OpenSSL.malloc(self.ciphertext, len(
-            self.ciphertext) + self.cipher.get_blocksize())
-        if (OpenSSL.EVP_CipherFinal_ex(self.ctx,
-                                       OpenSSL.byref(buffer, self.size),
+        buffer = OpenSSL.malloc(b"", self.cipher.get_blocksize())
+        if (OpenSSL.EVP_CipherFinal_ex(self.ctx, OpenSSL.byref(buffer),
                                        OpenSSL.byref(i))) == 0:
             raise Exception("[OpenSSL] EVP_CipherFinal_ex FAIL ...")
-        self.size += i.value
-        return buffer.raw[0:self.size]
+        return buffer.raw[0:i.value]
 
     def ciphering(self, input):
         """
         Do update and final in one method
         """
-        self.update(input)
-        return self.final()
+        buff = self.update(input)
+        return buff + self.final()
 
     def __del__(self):
         OpenSSL.EVP_CIPHER_CTX_cleanup(self.ctx)
