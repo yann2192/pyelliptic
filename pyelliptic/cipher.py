@@ -14,9 +14,9 @@ class Cipher:
         import pyelliptic
         iv = pyelliptic.Cipher.gen_IV('aes-256-cfb')
         ctx = pyelliptic.Cipher("secretkey", iv, 1, ciphername='aes-256-cfb')
-        ctx.update('test1')
-        ctx.update('test2')
-        ciphertext = ctx.final()
+        ciphertext = ctx.update('test1')
+        ciphertext += ctx.update('test2')
+        ciphertext += ctx.final()
 
         ctx2 = pyelliptic.Cipher("secretkey", iv, 0, ciphername='aes-256-cfb')
         print ctx2.ciphering(ciphertext)
