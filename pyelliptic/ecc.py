@@ -219,7 +219,7 @@ class ecc:
             raw_privkey = None
             curve2 = curve
         else:
-            curve2, raw_privkey, i = ecc._decode_pubkey(privkey)
+            curve2, raw_privkey, i = ecc._decode_privkey(privkey)
         if curve != curve2: raise Exception("Bad public and private key")
         return self.raw_check_key(raw_privkey, pubkey_x, pubkey_y, curve)
 
