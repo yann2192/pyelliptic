@@ -365,17 +365,16 @@ class ecc:
             openssl.EVP_MD_CTX_destroy(md_ctx)
 
     @staticmethod
-    def encrypt(data, pubkey, ephemcurve=None):
+    def encrypt(data, pubkey, ephemcurve=None, ciphername='aes-256-cbc'):
         """
         Encrypt data with ECIES method using the public key of the recipient.
         """
         curve, pubkey_x, pubkey_y, i = ecc._decode_pubkey(pubkey)
-        return ecc.raw_encrypt(data, pubkey_x, pubkey_y, curve=curve, ephemcurve=ephemcurve)
+        return ecc.raw_encrypt(data, pubkey_x, pubkey_y, curve=curve, ephemcurve=ephemcurve, ciphername=ciphername)
 
     @staticmethod
-    def raw_encrypt(data, pubkey_x, pubkey_y, curve='sect283r1', ephemcurve=None):
+    def raw_encrypt(data, pubkey_x, pubkey_y, curve='sect283r1', ephemcurve=None, ciphername='aes-256-cbc'):
         if ephemcurve == None: ephemcurve = curve
-        ciphername = 'aes-256-cbc'
         ephem = ecc(curve=ephemcurve)
         key = ephem.raw_get_ecdh_key(pubkey_x, pubkey_y)
         pubkey = ephem.get_pubkey()
@@ -383,11 +382,10 @@ class ecc:
         ctx = cipher(key, iv, 1, ciphername)
         return iv + pubkey + ctx.ciphering(data)
 
-    def decrypt(self, data):
+    def decrypt(self, data, ciphername='aes-256-cbc'):
         """
         Decrypt data with ECIES method using the local private key
         """
-        ciphername = 'aes-256-cbc'
         blocksize = openssl.get_cipher(ciphername).get_blocksize()
         iv = data[:blocksize]
         i = blocksize
