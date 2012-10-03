@@ -91,22 +91,22 @@ class ECC:
         High level function which returns :
         curve(2) + len_of_pubkeyX(2) + pubkeyX + len_of_pubkeyY + pubkeyY
         """
-        return "".join((pack('!H', self.curve),
-                        pack('!H', len(self.pubkey_x)),
-                        self.pubkey_x,
-                        pack('!H', len(self.pubkey_y)),
-                        self.pubkey_y
-                        ))
+        return b''.join((pack('!H', self.curve),
+                         pack('!H', len(self.pubkey_x)),
+                         self.pubkey_x,
+                         pack('!H', len(self.pubkey_y)),
+                         self.pubkey_y
+                         ))
 
     def get_privkey(self):
         """
         High level function which returns
         curve(2) + len_of_privkey(2) + privkey
         """
-        return "".join((pack('!H', self.curve),
-                        pack('!H', len(self.privkey)),
-                        self.privkey
-                        ))
+        return b''.join((pack('!H', self.curve),
+                         pack('!H', len(self.privkey)),
+                         self.privkey
+                         ))
 
     @staticmethod
     def _decode_pubkey(pubkey):
