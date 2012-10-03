@@ -163,6 +163,10 @@ class _openssl:
         self.EVP_bf_cfb64.restype = ctypes.c_void_p
         self.EVP_bf_cfb64.argtypes = []
 
+        self.EVP_rc4 = self._lib.EVP_rc4
+        self.EVP_rc4.restype = ctypes.c_void_p
+        self.EVP_rc4.argtypes = []
+
         self.EVP_CIPHER_CTX_cleanup = self._lib.EVP_CIPHER_CTX_cleanup
         self.EVP_CIPHER_CTX_cleanup.restype = ctypes.c_int
         self.EVP_CIPHER_CTX_cleanup.argtypes = [ctypes.c_void_p]
@@ -239,6 +243,7 @@ class _openssl:
                 'aes-256-cbc': cipher_name('aes-256-cbc', self.EVP_aes_256_cbc, 16),
                 'bf-cfb': cipher_name('bf-cfb', self.EVP_bf_cfb64, 8),
                 'bf-cbc': cipher_name('bf-cbc', self.EVP_bf_cbc, 8),
+                'rc4': cipher_name('rc4', self.EVP_rc4, 128), # 128 is the initialisation size not block size
                 }
 
     def _set_curves(self):
