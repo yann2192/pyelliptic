@@ -163,7 +163,7 @@ class _openssl:
         self.EVP_bf_cfb64.restype = ctypes.c_void_p
         self.EVP_bf_cfb64.argtypes = []
 
-        self.EVP_rc4 = self._lib.EVP_bf_cfb64
+        self.EVP_rc4 = self._lib.EVP_rc4
         self.EVP_rc4.restype = ctypes.c_void_p
         self.EVP_rc4.argtypes = []
 
