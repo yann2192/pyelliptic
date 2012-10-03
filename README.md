@@ -19,6 +19,7 @@ Require OpenSSL
 * AES-128 (CBC, OFB, CFB, CTR)
 * AES-256 (CBC, OFB, CFB, CTR)
 * Blowfish (CFB and CBC)
+* RC4
 
 ### Other
 
