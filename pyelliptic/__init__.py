@@ -8,10 +8,10 @@ __all__ = [
     'OpenSSL',
     'ecc',
     'cipher',
-    'hmac',
+    'hash',
 ]
 
 from .openssl import OpenSSL
 from .ecc import ECC
 from .cipher import Cipher
-from .hmac import HMAC
+from .hash import hmac, pbkdf2

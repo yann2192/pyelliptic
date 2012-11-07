@@ -257,6 +257,11 @@ class _OpenSSL:
         self.RAND_bytes.restype = None
         self.RAND_bytes.argtypes = [ctypes.c_void_p, ctypes.c_int]
 
+
+        self.EVP_sha256 = self._lib.EVP_sha256
+        self.EVP_sha256.restype = ctypes.c_void_p
+        self.EVP_sha256.argtypes = []
+
         self.EVP_sha512 = self._lib.EVP_sha512
         self.EVP_sha512.restype = ctypes.c_void_p
         self.EVP_sha512.argtypes = []
@@ -265,6 +270,13 @@ class _OpenSSL:
         self.HMAC.restype = ctypes.c_void_p
         self.HMAC.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int,
                               ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p]
+
+        self.PKCS5_PBKDF2_HMAC = self._lib.PKCS5_PBKDF2_HMAC
+        self.PKCS5_PBKDF2_HMAC.restype = ctypes.c_int
+        self.PKCS5_PBKDF2_HMAC.argtypes = [ctypes.c_void_p, ctypes.c_int,
+                                           ctypes.c_void_p, ctypes.c_int,
+                                           ctypes.c_int, ctypes.c_void_p,
+                                           ctypes.c_int, ctypes.c_void_p]
 
         self._set_ciphers()
         self._set_curves()

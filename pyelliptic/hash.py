@@ -7,7 +7,7 @@
 from pyelliptic.openssl import OpenSSL
 
 
-def HMAC(k, m):
+def hmac(k, m):
     """
     Compute the key and the message with HMAC SHA512
     """
@@ -17,3 +17,15 @@ def HMAC(k, m):
     i = OpenSSL.pointer(OpenSSL.c_int(0))
     OpenSSL.HMAC(OpenSSL.EVP_sha512(), key, len(k), d, len(m), md, i)
     return md.raw
+
+
+def pbkdf2(password, salt=None, i=10000, keylen=64):
+    if salt is None:
+        salt = OpenSSL.rand(8)
+    p_password = OpenSSL.malloc(password, len(password))
+    p_salt = OpenSSL.malloc(salt, len(salt))
+    output = OpenSSL.malloc(0, keylen)
+    OpenSSL.PKCS5_PBKDF2_HMAC(p_password, len(password), p_salt,
+                              len(p_salt), i, OpenSSL.EVP_sha256(),
+                              keylen, output)
+    return salt, output.raw
