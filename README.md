@@ -25,6 +25,7 @@ Require OpenSSL
 
 * CSPRNG
 * HMAC (using SHA512)
+* PBKDF2 (using SHA256)
 
 ## Example
 
