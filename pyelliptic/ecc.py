@@ -4,8 +4,10 @@
 #  Copyright (C) 2011 Yann GUIBET <yannguibet@gmail.com>
 #  See LICENSE for details.
 
+from hashlib import sha512
 from pyelliptic.openssl import OpenSSL
 from pyelliptic.cipher import Cipher
+from pyelliptic.hash import hmac_sha256
 from struct import pack, unpack
 
 
@@ -179,12 +181,12 @@ class ECC:
     def get_ecdh_key(self, pubkey):
         """
         High level function. Compute public key with the local private key
-        and returns a 256bits shared key
+        and returns a 512bits shared key
         """
         curve, pubkey_x, pubkey_y, i = ECC._decode_pubkey(pubkey)
         if curve != self.curve:
             raise Exception("ECC keys must be from the same curve !")
-        return self.raw_get_ecdh_key(pubkey_x, pubkey_y)
+        return sha512(self.raw_get_ecdh_key(pubkey_x, pubkey_y)).digest()
 
     def raw_get_ecdh_key(self, pubkey_x, pubkey_y):
         try:
@@ -429,11 +431,14 @@ class ECC:
         if ephemcurve is None:
             ephemcurve = curve
         ephem = ECC(curve=ephemcurve)
-        key = ephem.raw_get_ecdh_key(pubkey_x, pubkey_y)
+        key = sha512(ephem.raw_get_ecdh_key(pubkey_x, pubkey_y)).digest()
+        key_e, key_m = key[:32], key[32:]
         pubkey = ephem.get_pubkey()
         iv = OpenSSL.rand(OpenSSL.get_cipher(ciphername).get_blocksize())
-        ctx = Cipher(key, iv, 1, ciphername)
-        return iv + pubkey + ctx.ciphering(data)
+        ctx = Cipher(key_e, iv, 1, ciphername)
+        ciphertext = ctx.ciphering(data)
+        mac = hmac_sha256(key_m, ciphertext)
+        return iv + pubkey + ciphertext + mac
 
     def decrypt(self, data, ciphername='aes-256-cbc'):
         """
@@ -444,7 +449,12 @@ class ECC:
         i = blocksize
         curve, pubkey_x, pubkey_y, i2 = ECC._decode_pubkey(data[i:])
         i += i2
-        data = data[i:]
-        key = self.raw_get_ecdh_key(pubkey_x, pubkey_y)
-        ctx = Cipher(key, iv, 0, ciphername)
-        return ctx.ciphering(data)
+        ciphertext = data[i:len(data)-32]
+        i += len(ciphertext)
+        mac = data[i:]
+        key = sha512(self.raw_get_ecdh_key(pubkey_x, pubkey_y)).digest()
+        key_e, key_m = key[:32], key[32:]
+        if hmac_sha256(key_m, ciphertext) != mac:
+            raise RuntimeError("Fail to verify data")
+        ctx = Cipher(key_e, iv, 0, ciphername)
+        return ctx.ciphering(ciphertext)
