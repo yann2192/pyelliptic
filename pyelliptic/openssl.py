@@ -6,6 +6,7 @@
 
 import sys
 import ctypes
+import ctypes.util
 
 OpenSSL = None
 
@@ -388,12 +389,7 @@ class _OpenSSL:
         return buffer
 
 try:
-    OpenSSL = _OpenSSL('libcrypto.so')
+    libname = ctypes.util.find_library('crypto')
+    OpenSSL = _OpenSSL(libname)
 except:
-    try:
-        OpenSSL = _OpenSSL('libeay32.dll')
-    except:
-        try:
-            OpenSSL = _OpenSSL('libcrypto.dylib')
-        except:
-            raise Exception("Couldn't load OpenSSL lib ...")
+    raise Exception("Couldn't load OpenSSL lib ...")
