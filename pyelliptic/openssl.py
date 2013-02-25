@@ -388,8 +388,10 @@ class _OpenSSL:
             buffer = self.create_string_buffer(size)
         return buffer
 
-try:
-    libname = ctypes.util.find_library('crypto')
-    OpenSSL = _OpenSSL(libname)
-except:
+libname = ctypes.util.find_library('crypto')
+if libname is None:
+    # For Windows ...
+    libname = ctypes.util.find_library('libeay32.dll')
+if libname is None:
     raise Exception("Couldn't load OpenSSL lib ...")
+OpenSSL = _OpenSSL(libname)
