@@ -330,6 +330,7 @@ class _OpenSSL:
             'sect409r1': 732,
             'sect571k1': 733,
             'sect571r1': 734,
+            'prime256v1': 415,
         }
 
     def BN_num_bytes(self, x):
