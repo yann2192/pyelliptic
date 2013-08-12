@@ -348,7 +348,7 @@ class ECC:
                                      siglen.contents, key)) != 1:
                 raise Exception("[OpenSSL] ECDSA_verify FAIL ...")
 
-            return sig.raw
+            return sig.raw[0:siglen.contents.value]
 
         finally:
             OpenSSL.EC_KEY_free(key)
