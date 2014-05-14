@@ -2,7 +2,33 @@
 # -*- coding: utf-8 -*-
 
 #  Copyright (C) 2011 Yann GUIBET <yannguibet@gmail.com>
-#  See LICENSE for details.
+# This program is free software; you can redistribute it
+# and/or modify it under the terms of version 3 of the
+# GNU General Public License as published by the Free
+# Software Foundation
+#
+# In addition, as a special exception, the author of this
+# program gives permission to link the code of its
+# release with the OpenSSL project's "OpenSSL" library (or
+# with modified versions of it that use the same license as
+# the "OpenSSL" library), and distribute the linked
+# executables. You must obey the GNU General Public
+# License in all respects for all of the code used other
+# than "OpenSSL".  If you modify this file, you may extend
+# this exception to your version of the file, but you are
+# not obligated to do so.  If you do not wish to do so,
+# delete this exception statement from your version.
+#
+# This program is distributed in the hope that it will be
+# useful, but WITHOUT ANY WARRANTY; without even the implied
+# warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public
+# License along with this package; if not, write to the Free
+# Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+# Boston, MA  02110-1301 USA
 
 import sys
 import ctypes
@@ -168,13 +194,21 @@ class _OpenSSL:
         self.EVP_aes_256_cbc.restype = ctypes.c_void_p
         self.EVP_aes_256_cbc.argtypes = []
 
-        self.EVP_aes_128_ctr = self._lib.EVP_aes_128_ctr
-        self.EVP_aes_128_ctr.restype = ctypes.c_void_p
-        self.EVP_aes_128_ctr.argtypes = []
+        try:
+            self.EVP_aes_128_ctr = self._lib.EVP_aes_128_ctr
+        except AttributeError:
+            pass
+        else:
+            self.EVP_aes_128_ctr.restype = ctypes.c_void_p
+            self.EVP_aes_128_ctr.argtypes = []
 
-        self.EVP_aes_256_ctr = self._lib.EVP_aes_256_ctr
-        self.EVP_aes_256_ctr.restype = ctypes.c_void_p
-        self.EVP_aes_256_ctr.argtypes = []
+        try:
+            self.EVP_aes_256_ctr = self._lib.EVP_aes_256_ctr
+        except AttributeError:
+            pass
+        else:
+            self.EVP_aes_256_ctr.restype = ctypes.c_void_p
+            self.EVP_aes_256_ctr.argtypes = []
 
         self.EVP_aes_128_ofb = self._lib.EVP_aes_128_ofb
         self.EVP_aes_128_ofb.restype = ctypes.c_void_p
@@ -290,12 +324,21 @@ class _OpenSSL:
             'aes-256-cfb': CipherName('aes-256-cfb', self.EVP_aes_256_cfb128, 16),
             'aes-128-ofb': CipherName('aes-128-ofb', self._lib.EVP_aes_128_ofb, 16),
             'aes-256-ofb': CipherName('aes-256-ofb', self._lib.EVP_aes_256_ofb, 16),
-            'aes-128-ctr': CipherName('aes-128-ctr', self._lib.EVP_aes_128_ctr, 16),
-            'aes-256-ctr': CipherName('aes-256-ctr', self._lib.EVP_aes_256_ctr, 16),
+#           'aes-128-ctr': CipherName('aes-128-ctr', self._lib.EVP_aes_128_ctr, 16),
+#           'aes-256-ctr': CipherName('aes-256-ctr', self._lib.EVP_aes_256_ctr, 16),
             'bf-cfb': CipherName('bf-cfb', self.EVP_bf_cfb64, 8),
             'bf-cbc': CipherName('bf-cbc', self.EVP_bf_cbc, 8),
             'rc4': CipherName('rc4', self.EVP_rc4, 128), # 128 is the initialisation size not block size
         }
+
+        if hasattr(self, 'EVP_aes_128_ctr'):
+            self.cipher_algo['aes-128-ctr'] = CipherName('aes-128-ctr',
+                                                         self._lib.EVP_aes_128_ctr,
+                                                         16)
+        if hasattr(self, 'EVP_aes_256_ctr'):
+            self.cipher_algo['aes-256-ctr'] = CipherName('aes-256-ctr',
+                                                         self._lib.EVP_aes_256_ctr,
+                                                         16)
 
     def _set_curves(self):
         self.curves = {
