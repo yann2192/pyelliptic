@@ -462,9 +462,9 @@ class ECC:
         pubkey = ephem.get_pubkey()
         iv = OpenSSL.rand(OpenSSL.get_cipher(ciphername).get_blocksize())
         ctx = Cipher(key_e, iv, 1, ciphername)
-        ciphertext = ctx.ciphering(data)
+        ciphertext = iv + pubkey + ctx.ciphering(data)
         mac = hmac_sha256(key_m, ciphertext)
-        return iv + pubkey + ciphertext + mac
+        return ciphertext + mac
 
     def decrypt(self, data, ciphername='aes-256-cbc'):
         """
@@ -475,12 +475,12 @@ class ECC:
         i = blocksize
         curve, pubkey_x, pubkey_y, i2 = ECC._decode_pubkey(data[i:])
         i += i2
-        ciphertext = data[i:len(data)-32]
+        ciphertext = data[i:len(data) - 32]
         i += len(ciphertext)
         mac = data[i:]
         key = sha512(self.raw_get_ecdh_key(pubkey_x, pubkey_y)).digest()
         key_e, key_m = key[:32], key[32:]
-        if hmac_sha256(key_m, ciphertext) != mac:
+        if hmac_sha256(key_m, data[:len(data) - 32]) != mac:
             raise RuntimeError("Fail to verify data")
         ctx = Cipher(key_e, iv, 0, ciphername)
         return ctx.ciphering(ciphertext)
