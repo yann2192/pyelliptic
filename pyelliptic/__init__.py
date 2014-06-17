@@ -29,7 +29,7 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor,
 # Boston, MA  02110-1301 USA
 
-__version__ = '1.5.2'
+__version__ = '1.5.3'
 
 __all__ = [
     'OpenSSL',
