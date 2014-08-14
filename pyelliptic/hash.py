@@ -30,7 +30,7 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor,
 # Boston, MA  02110-1301 USA
 
-from pyelliptic.openssl import OpenSSL
+from .openssl import OpenSSL
 
 
 def hmac_sha256(k, m):

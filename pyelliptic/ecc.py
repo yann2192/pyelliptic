@@ -31,9 +31,9 @@
 # Boston, MA  02110-1301 USA
 
 from hashlib import sha512
-from pyelliptic.openssl import OpenSSL
-from pyelliptic.cipher import Cipher
-from pyelliptic.hash import hmac_sha256
+from .openssl import OpenSSL
+from .cipher import Cipher
+from .hash import hmac_sha256
 from struct import pack, unpack
 
 
