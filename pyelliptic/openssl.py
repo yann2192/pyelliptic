@@ -44,7 +44,8 @@ class CipherName:
         self._blocksize = blocksize
 
     def __str__(self):
-        return "Cipher : " + self._name + " | Blocksize : " + str(self._blocksize) + " | Fonction pointer : " + str(self._pointer)
+        return ("Cipher : %s | Blocksize : %s | Fonction pointer : %s" %
+                (self._name, str(self._blocksize), str(self._pointer)))
 
     def get_pointer(self):
         return self._pointer()
@@ -122,7 +123,7 @@ class _OpenSSL:
 
         self.EC_POINT_get_affine_coordinates_GFp = self._lib.EC_POINT_get_affine_coordinates_GFp
         self.EC_POINT_get_affine_coordinates_GFp.restype = ctypes.c_int
-        self.EC_POINT_get_affine_coordinates_GFp.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
+        self.EC_POINT_get_affine_coordinates_GFp.argtypes = 5 * [ctypes.c_void_p]
 
         self.EC_KEY_set_private_key = self._lib.EC_KEY_set_private_key
         self.EC_KEY_set_private_key.restype = ctypes.c_int
@@ -140,7 +141,7 @@ class _OpenSSL:
 
         self.EC_POINT_set_affine_coordinates_GFp = self._lib.EC_POINT_set_affine_coordinates_GFp
         self.EC_POINT_set_affine_coordinates_GFp.restype = ctypes.c_int
-        self.EC_POINT_set_affine_coordinates_GFp.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
+        self.EC_POINT_set_affine_coordinates_GFp.argtypes = 5 * [ctypes.c_void_p]
 
         self.EC_POINT_new = self._lib.EC_POINT_new
         self.EC_POINT_new.restype = ctypes.c_void_p
@@ -166,7 +167,9 @@ class _OpenSSL:
         self.ECDH_compute_key = self._lib.ECDH_compute_key
         self.ECDH_compute_key.restype = ctypes.c_int
         self.ECDH_compute_key.argtypes = [ctypes.c_void_p,
-                                          ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p]
+                                          ctypes.c_int,
+                                          ctypes.c_void_p,
+                                          ctypes.c_void_p]
 
         self.EVP_CipherInit_ex = self._lib.EVP_CipherInit_ex
         self.EVP_CipherInit_ex.restype = ctypes.c_int
@@ -241,21 +244,24 @@ class _OpenSSL:
         self.EVP_CipherUpdate = self._lib.EVP_CipherUpdate
         self.EVP_CipherUpdate.restype = ctypes.c_int
         self.EVP_CipherUpdate.argtypes = [ctypes.c_void_p,
-                                          ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int]
+                                          ctypes.c_void_p,
+                                          ctypes.c_void_p,
+                                          ctypes.c_void_p,
+                                          ctypes.c_int]
 
         self.EVP_CipherFinal_ex = self._lib.EVP_CipherFinal_ex
         self.EVP_CipherFinal_ex.restype = ctypes.c_int
-        self.EVP_CipherFinal_ex.argtypes = [ctypes.c_void_p,
-                                            ctypes.c_void_p, ctypes.c_void_p]
+        self.EVP_CipherFinal_ex.argtypes = 3 * [ctypes.c_void_p]
 
         self.EVP_DigestInit = self._lib.EVP_DigestInit
         self.EVP_DigestInit.restype = ctypes.c_int
-        self._lib.EVP_DigestInit.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+        self._lib.EVP_DigestInit.argtypes = 2 * [ctypes.c_void_p]
 
         self.EVP_DigestUpdate = self._lib.EVP_DigestUpdate
         self.EVP_DigestUpdate.restype = ctypes.c_int
         self.EVP_DigestUpdate.argtypes = [ctypes.c_void_p,
-                                          ctypes.c_void_p, ctypes.c_int]
+                                          ctypes.c_void_p,
+                                          ctypes.c_int]
 
         self.EVP_DigestFinal = self._lib.EVP_DigestFinal
         self.EVP_DigestFinal.restype = ctypes.c_int
@@ -268,13 +274,21 @@ class _OpenSSL:
 
         self.ECDSA_sign = self._lib.ECDSA_sign
         self.ECDSA_sign.restype = ctypes.c_int
-        self.ECDSA_sign.argtypes = [ctypes.c_int, ctypes.c_void_p,
-                                    ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
+        self.ECDSA_sign.argtypes = [ctypes.c_int,
+                                    ctypes.c_void_p,
+                                    ctypes.c_int,
+                                    ctypes.c_void_p,
+                                    ctypes.c_void_p,
+                                    ctypes.c_void_p]
 
         self.ECDSA_verify = self._lib.ECDSA_verify
         self.ECDSA_verify.restype = ctypes.c_int
-        self.ECDSA_verify.argtypes = [ctypes.c_int, ctypes.c_void_p,
-                                      ctypes.c_int, ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p]
+        self.ECDSA_verify.argtypes = [ctypes.c_int,
+                                      ctypes.c_void_p,
+                                      ctypes.c_int,
+                                      ctypes.c_void_p,
+                                      ctypes.c_int,
+                                      ctypes.c_void_p]
 
         self.EVP_MD_CTX_create = self._lib.EVP_MD_CTX_create
         self.EVP_MD_CTX_create.restype = ctypes.c_void_p
@@ -292,7 +306,6 @@ class _OpenSSL:
         self.RAND_bytes.restype = None
         self.RAND_bytes.argtypes = [ctypes.c_void_p, ctypes.c_int]
 
-
         self.EVP_sha256 = self._lib.EVP_sha256
         self.EVP_sha256.restype = ctypes.c_void_p
         self.EVP_sha256.argtypes = []
@@ -304,7 +317,8 @@ class _OpenSSL:
         self.HMAC = self._lib.HMAC
         self.HMAC.restype = ctypes.c_void_p
         self.HMAC.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int,
-                              ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p]
+                              ctypes.c_void_p, ctypes.c_int,
+                              ctypes.c_void_p, ctypes.c_void_p]
 
         self.PKCS5_PBKDF2_HMAC = self._lib.PKCS5_PBKDF2_HMAC
         self.PKCS5_PBKDF2_HMAC.restype = ctypes.c_int
@@ -318,27 +332,54 @@ class _OpenSSL:
 
     def _set_ciphers(self):
         self.cipher_algo = {
-            'aes-128-cbc': CipherName('aes-128-cbc', self.EVP_aes_128_cbc, 16),
-            'aes-256-cbc': CipherName('aes-256-cbc', self.EVP_aes_256_cbc, 16),
-            'aes-128-cfb': CipherName('aes-128-cfb', self.EVP_aes_128_cfb128, 16),
-            'aes-256-cfb': CipherName('aes-256-cfb', self.EVP_aes_256_cfb128, 16),
-            'aes-128-ofb': CipherName('aes-128-ofb', self._lib.EVP_aes_128_ofb, 16),
-            'aes-256-ofb': CipherName('aes-256-ofb', self._lib.EVP_aes_256_ofb, 16),
-#           'aes-128-ctr': CipherName('aes-128-ctr', self._lib.EVP_aes_128_ctr, 16),
-#           'aes-256-ctr': CipherName('aes-256-ctr', self._lib.EVP_aes_256_ctr, 16),
-            'bf-cfb': CipherName('bf-cfb', self.EVP_bf_cfb64, 8),
-            'bf-cbc': CipherName('bf-cbc', self.EVP_bf_cbc, 8),
-            'rc4': CipherName('rc4', self.EVP_rc4, 128), # 128 is the initialisation size not block size
+            'aes-128-cbc': CipherName('aes-128-cbc',
+                                      self.EVP_aes_128_cbc,
+                                      16),
+            'aes-256-cbc': CipherName('aes-256-cbc',
+                                      self.EVP_aes_256_cbc,
+                                      16),
+            'aes-128-cfb': CipherName('aes-128-cfb',
+                                      self.EVP_aes_128_cfb128,
+                                      16),
+            'aes-256-cfb': CipherName('aes-256-cfb',
+                                      self.EVP_aes_256_cfb128,
+                                      16),
+            'aes-128-ofb': CipherName('aes-128-ofb',
+                                      self._lib.EVP_aes_128_ofb,
+                                      16),
+            'aes-256-ofb': CipherName('aes-256-ofb',
+                                      self._lib.EVP_aes_256_ofb,
+                                      16),
+            # 'aes-128-ctr': CipherName('aes-128-ctr',
+            #                           self._lib.EVP_aes_128_ctr,
+            #                           16),
+            # 'aes-256-ctr': CipherName('aes-256-ctr',
+            #                           self._lib.EVP_aes_256_ctr,
+            #                           16),
+            'bf-cfb': CipherName('bf-cfb',
+                                 self.EVP_bf_cfb64,
+                                 8),
+            'bf-cbc': CipherName('bf-cbc',
+                                 self.EVP_bf_cbc,
+                                 8),
+            'rc4': CipherName('rc4',
+                              self.EVP_rc4,
+                              # 128 is the initialisation size not block size
+                              128),
         }
 
         if hasattr(self, 'EVP_aes_128_ctr'):
-            self.cipher_algo['aes-128-ctr'] = CipherName('aes-128-ctr',
-                                                         self._lib.EVP_aes_128_ctr,
-                                                         16)
+            self.cipher_algo['aes-128-ctr'] = CipherName(
+                'aes-128-ctr',
+                self._lib.EVP_aes_128_ctr,
+                16
+            )
         if hasattr(self, 'EVP_aes_256_ctr'):
-            self.cipher_algo['aes-256-ctr'] = CipherName('aes-256-ctr',
-                                                         self._lib.EVP_aes_256_ctr,
-                                                         16)
+            self.cipher_algo['aes-256-ctr'] = CipherName(
+                'aes-256-ctr',
+                self._lib.EVP_aes_256_ctr,
+                16
+            )
 
     def _set_curves(self):
         self.curves = {
