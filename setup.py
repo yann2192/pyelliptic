@@ -34,7 +34,9 @@ setup(
     version='1.5.3',
     url='https://github.com/yann2192/pyelliptic',
     license='GPL',
-    description="Python OpenSSL wrapper. For modern cryptography with ECC, AES, HMAC, Blowfish, ...",
+    description=
+    "Python OpenSSL wrapper for modern cryptography with " +
+    "ECC, AES, HMAC, Blowfish, ...",
     author='Yann GUIBET',
     author_email='yannguibet@gmail.com',
     packages=find_packages(),
