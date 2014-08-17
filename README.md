@@ -60,7 +60,8 @@ print pyelliptic.ECC(pubkey=bob.get_pubkey()).verify(signature, "Hello Alice")
 # ERROR !!!
 try:
     key = alice.get_ecdh_key(bob.get_pubkey())
-except: print("For ECDH key agreement, the keys must be defined on the same curve !")
+except:
+    print("For ECDH key agreement, the keys must be defined on the same curve !")
 
 alice = pyelliptic.ECC(curve='sect571r1')
 print alice.get_ecdh_key(bob.get_pubkey()).encode('hex')
