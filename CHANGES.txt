@@ -1,1 +1,6 @@
-v1.5.3, 2014-06-17 -- Initial release.
+v1.5.4, 2014-08-25
+------------------
+
+- Add CHANGES.txt according to pip conventions (issue #19)
+- PEP8 (issue #20)
+- Relative imports (issue #18)
