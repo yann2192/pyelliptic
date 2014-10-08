@@ -156,8 +156,8 @@ class _OpenSSL:
 	self.BN_CTX_free.argtypes = [ctypes.c_void_p]
 
 	self.EC_POINT_mul = self._lib.EC_POINT_mul
-	self.EC_POINT_mul.restype = None
-	self.EC_POINT_mul.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
+	self.EC_POINT_mul.restype = ctypes.c_int
+	self.EC_POINT_mul.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
 
         self.EC_KEY_set_private_key = self._lib.EC_KEY_set_private_key
         self.EC_KEY_set_private_key.restype = ctypes.c_int
@@ -323,7 +323,7 @@ class _OpenSSL:
         self.EVP_sha256.argtypes = []
 
 	self.i2o_ECPublicKey = self._lib.i2o_ECPublicKey
-	self.i2o_ECPublicKey.restype = ctypes.c_void_p
+	self.i2o_ECPublicKey.restype = ctypes.c_int
 	self.i2o_ECPublicKey.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
 
         self.EVP_sha512 = self._lib.EVP_sha512
@@ -478,7 +478,7 @@ class _OpenSSL:
         """
         buffer = self.malloc(0, size)
 	#Check value of RAND_bytes in case error occured
-	while self.RAND_bytes(buffer, size) != 1:
+	if self.RAND_bytes(buffer, size) != 1:
 		import time
 		time.sleep(1)
         return buffer.raw
