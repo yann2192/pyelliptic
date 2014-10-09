@@ -35,6 +35,13 @@ from .cipher import Cipher
 from .hash import hmac_sha256
 from struct import pack, unpack
 
+def equals(a, b):
+    if len(a) != len(b):
+        return False
+    result = 0
+    for x, y in zip(a, b):
+        result |= ord(x) ^ ord(y)
+    return result == 0
 
 class ECC:
     """
@@ -479,7 +486,7 @@ class ECC:
         mac = data[i:]
         key = sha512(self.raw_get_ecdh_key(pubkey_x, pubkey_y)).digest()
         key_e, key_m = key[:32], key[32:]
-        if hmac_sha256(key_m, data[:len(data) - 32]) != mac:
+        if not equals(hmac_sha256(key_m, data[:len(data) - 32]), mac):
             raise RuntimeError("Fail to verify data")
         ctx = Cipher(key_e, iv, 0, ciphername)
         return ctx.ciphering(ciphertext)
