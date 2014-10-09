@@ -1,8 +1,12 @@
-v1.5.5, 2014-10-XX
+v1.5.5, 2014-10-09
 ------------------
 
 - Change licence to BSD (issue #24)
 - Rewrite test.py with unittest (issue #27)
+- Add constant time equality comparison (issue #23)
+- add arithmetic.py (pull request #21)
+- add some functions in openssl.py (pull request #22)
+- raise exception if RAND_bytes failed (pull request #22)
 
 v1.5.4, 2014-08-25
 ------------------
