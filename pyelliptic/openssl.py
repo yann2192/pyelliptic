@@ -316,7 +316,7 @@ class _OpenSSL:
         self.EVP_MD_CTX_destroy.argtypes = [ctypes.c_void_p]
 
         self.RAND_bytes = self._lib.RAND_bytes
-        self.RAND_bytes.restype = None
+        self.RAND_bytes.restype = ctypes.c_int
         self.RAND_bytes.argtypes = [ctypes.c_void_p, ctypes.c_int]
 
         self.EVP_sha256 = self._lib.EVP_sha256
