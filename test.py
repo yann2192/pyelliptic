@@ -30,72 +30,91 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor,
 # Boston, MA  02110-1301 USA
 
-from pyelliptic import Cipher, ECC
+import unittest
 from binascii import hexlify, unhexlify
 
-print("TEST: AES-256-CTR")
-ciphername = "aes-256-ctr"
-
-iv_hex = b"f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff"
-iv = unhexlify(iv_hex)
-key_hex = b"603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4"
-key = unhexlify(key_hex)
-plain_hex = b"6bc1bee22e409f96e93d7e117393172a"
-plaintext = unhexlify(plain_hex)
-
-ctx = Cipher(key, iv, 1, ciphername=ciphername)
-enc = ctx.ciphering(plaintext)
-print(hexlify(enc))
-
-ctx = Cipher(key, iv, 0, ciphername=ciphername)
-assert ctx.ciphering(enc) == plaintext
+from pyelliptic import Cipher, ECC
 
 
-print("\nTEST: AES-256-CFB")
-ciphername = "aes-256-cfb"
-key_hex = b"603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4"
-key = unhexlify(key_hex)
-iv_hex = b"000102030405060708090A0B0C0D0E0F"
-iv = unhexlify(iv_hex)
-plain_hex = b"6bc1bee22e409f96e93d7e117393172a"
-plaintext = unhexlify(plain_hex)
+class TestCipher(unittest.TestCase):
+    def setUp(self):
+        pass
 
-ctx = Cipher(key, iv, 1, ciphername=ciphername)
-enc = ctx.ciphering(plaintext)
-print(hexlify(enc))
+    def test_aes256ctr(self):
+        ciphername = "aes-256-ctr"
+        print("TEST: AES-256-CTR")
 
-ctx = Cipher(key, iv, 0, ciphername=ciphername)
-assert ctx.ciphering(enc) == plaintext
+        iv_hex = b"f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff"
+        iv = unhexlify(iv_hex)
+        key_hex = b"603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4"
+        key = unhexlify(key_hex)
+        plain_hex = b"6bc1bee22e409f96e93d7e117393172a"
+        plaintext = unhexlify(plain_hex)
 
+        ctx = Cipher(key, iv, 1, ciphername=ciphername)
+        enc = ctx.ciphering(plaintext)
+        print(hexlify(enc))
 
-print("\nTEST: AES-256-CBC")
-ciphername = "aes-256-cbc"
-iv_hex = b"000102030405060708090A0B0C0D0E0F"
-iv = unhexlify(iv_hex)
-key_hex = b"603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4"
-key = unhexlify(key_hex)
-plain_hex = b"6bc1bee22e409f96e93d7e117393172a"
-plaintext = unhexlify(plain_hex)
-
-ctx = Cipher(key, iv, 1, ciphername=ciphername)
-enc = ctx.ciphering(plaintext)
-print(hexlify(enc))
-
-ctx = Cipher(key, iv, 0, ciphername=ciphername)
-assert ctx.ciphering(enc) == plaintext
+        ctx = Cipher(key, iv, 0, ciphername=ciphername)
+        self.assertEqual(plaintext, ctx.ciphering(enc))
 
 
-print("\nTEST: ECIES")
-alice = ECC()
-plaintext = b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-ciphertext = ECC.encrypt(plaintext, alice.get_pubkey())
-print(hexlify(ciphertext))
-assert alice.decrypt(ciphertext) == plaintext
+    def test_aes256cfb(self):
+        print("\nTEST: AES-256-CFB")
+        ciphername = "aes-256-cfb"
+        key_hex = b"603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4"
+        key = unhexlify(key_hex)
+        iv_hex = b"000102030405060708090A0B0C0D0E0F"
+        iv = unhexlify(iv_hex)
+        plain_hex = b"6bc1bee22e409f96e93d7e117393172a"
+        plaintext = unhexlify(plain_hex)
+
+        ctx = Cipher(key, iv, 1, ciphername=ciphername)
+        enc = ctx.ciphering(plaintext)
+        print(hexlify(enc))
+
+        ctx = Cipher(key, iv, 0, ciphername=ciphername)
+        self.assertEqual(plaintext, ctx.ciphering(enc))
+
+    def test_aes256cbc(self):
+        print("\nTEST: AES-256-CBC")
+        ciphername = "aes-256-cbc"
+        iv_hex = b"000102030405060708090A0B0C0D0E0F"
+        iv = unhexlify(iv_hex)
+        key_hex = b"603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4"
+        key = unhexlify(key_hex)
+        plain_hex = b"6bc1bee22e409f96e93d7e117393172a"
+        plaintext = unhexlify(plain_hex)
+
+        ctx = Cipher(key, iv, 1, ciphername=ciphername)
+        enc = ctx.ciphering(plaintext)
+        print(hexlify(enc))
+
+        ctx = Cipher(key, iv, 0, ciphername=ciphername)
+        self.assertEqual(plaintext, ctx.ciphering(enc))
 
 
-print("\nTEST: ECIES/RC4")
-alice = ECC()
-plaintext = b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-ciphertext = ECC.encrypt(plaintext, alice.get_pubkey(), ciphername="rc4")
-print(hexlify(ciphertext))
-assert alice.decrypt(ciphertext, ciphername="rc4") == plaintext
+class TestICIES(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def test_ecies(self):
+        print("\nTEST: ECIES")
+        alice = ECC()
+        plaintext = b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        ciphertext = ECC.encrypt(plaintext, alice.get_pubkey())
+        print(hexlify(ciphertext))
+        self.assertEqual(plaintext, alice.decrypt(ciphertext))
+
+    def test_ecies_rc4(self):
+        print("\nTEST: ECIES/RC4")
+        alice = ECC()
+        plaintext = b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        ciphertext = ECC.encrypt(plaintext, alice.get_pubkey(),
+                                 ciphername="rc4")
+        print(hexlify(ciphertext))
+        self.assertEqual(plaintext, alice.decrypt(ciphertext, ciphername="rc4"))
+
+
+if __name__ == "__main__":
+    unittest.main()
