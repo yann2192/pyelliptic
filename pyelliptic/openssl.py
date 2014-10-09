@@ -150,6 +150,14 @@ class _OpenSSL:
         self.EC_POINT_free.restype = None
         self.EC_POINT_free.argtypes = [ctypes.c_void_p]
 
+	self.BN_CTX_free = self._lib.BN_CTX_free
+	self.BN_CTX_free.restype = None
+	self.BN_CTX_free.argtypes = [ctypes.c_void_p]
+
+	self.EC_POINT_mul = self._lib.EC_POINT_mul
+	self.EC_POINT_mul.restype = ctypes.c_int
+	self.EC_POINT_mul.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
+
         self.EC_KEY_set_private_key = self._lib.EC_KEY_set_private_key
         self.EC_KEY_set_private_key.restype = ctypes.c_int
         self.EC_KEY_set_private_key.argtypes = [ctypes.c_void_p,
@@ -158,6 +166,10 @@ class _OpenSSL:
         self.ECDH_OpenSSL = self._lib.ECDH_OpenSSL
         self._lib.ECDH_OpenSSL.restype = ctypes.c_void_p
         self._lib.ECDH_OpenSSL.argtypes = []
+
+	self.BN_CTX_new = self._lib.BN_CTX_new
+	self._lib.BN_CTX_new.restype = ctypes.c_void_p
+	self._lib.BN_CTX_new.argtypes = []
 
         self.ECDH_set_method = self._lib.ECDH_set_method
         self._lib.ECDH_set_method.restype = ctypes.c_int
@@ -309,6 +321,10 @@ class _OpenSSL:
         self.EVP_sha256.restype = ctypes.c_void_p
         self.EVP_sha256.argtypes = []
 
+	self.i2o_ECPublicKey = self._lib.i2o_ECPublicKey
+	self.i2o_ECPublicKey.restype = ctypes.c_int
+	self.i2o_ECPublicKey.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+
         self.EVP_sha512 = self._lib.EVP_sha512
         self.EVP_sha512.restype = ctypes.c_void_p
         self.EVP_sha512.argtypes = []
@@ -319,7 +335,11 @@ class _OpenSSL:
                               ctypes.c_void_p, ctypes.c_int,
                               ctypes.c_void_p, ctypes.c_void_p]
 
-        self.PKCS5_PBKDF2_HMAC = self._lib.PKCS5_PBKDF2_HMAC
+	try:
+		self.PKCS5_PBKDF2_HMAC = self._lib.PKCS5_PBKDF2_HMAC
+	except:
+		# The above is not compatible with all versions of OSX.
+		self.PKCS5_PBKDF2_HMAC = self._lib.PKCS5_PBKDF2_HMAC_SHA1
         self.PKCS5_PBKDF2_HMAC.restype = ctypes.c_int
         self.PKCS5_PBKDF2_HMAC.argtypes = [ctypes.c_void_p, ctypes.c_int,
                                            ctypes.c_void_p, ctypes.c_int,
@@ -456,7 +476,10 @@ class _OpenSSL:
         OpenSSL random function
         """
         buffer = self.malloc(0, size)
-        self.RAND_bytes(buffer, size)
+	#Check value of RAND_bytes in case error occured
+	if self.RAND_bytes(buffer, size) != 1:
+		import time
+		time.sleep(1)
         return buffer.raw
 
     def malloc(self, data, size):
