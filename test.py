@@ -34,6 +34,7 @@ import unittest
 from binascii import hexlify, unhexlify
 
 from pyelliptic import Cipher, ECC
+from pyelliptic import hash as _hash
 
 
 class TestCipher(unittest.TestCase):
@@ -42,7 +43,7 @@ class TestCipher(unittest.TestCase):
 
     def test_aes256ctr(self):
         ciphername = "aes-256-ctr"
-        print("TEST: AES-256-CTR")
+        print("\nTEST: AES-256-CTR")
 
         iv_hex = b"f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff"
         iv = unhexlify(iv_hex)
@@ -114,6 +115,27 @@ class TestICIES(unittest.TestCase):
                                  ciphername="rc4")
         print(hexlify(ciphertext))
         self.assertEqual(plaintext, alice.decrypt(ciphertext, ciphername="rc4"))
+
+
+class TestEquals(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def test_equals(self):
+        print("\nTEST: hash.equals")
+        a = '\xb5\x85/\xe80\xfa\x04\xdf\x07\x83\x17P\x9dw\x02\x89'
+
+        b = '\xb5\x85/\xe80\xfa\x04\xdf\x07\x83\x17P\x9dw\x02\x89'
+        self.assertTrue(_hash.equals(a, b))
+
+        b = '\xb4\x85/\xe80\xfa\x04\xdf\x07\x83\x17P\x9dw\x02\x89'
+        self.assertFalse(_hash.equals(a, b))
+
+        b = '\xb5\x85/\xe80\xfa\x04\xdf\x07\x83\x17P\x9dw\x02\x90'
+        self.assertFalse(_hash.equals(a, b))
+
+        b = '\xb4\x85/\xe80\xfa\x04\xdf\x07\x83\x17P\x9dw\x02'
+        self.assertFalse(_hash.equals(a, b))
 
 
 if __name__ == "__main__":

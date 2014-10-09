@@ -32,6 +32,15 @@
 from .openssl import OpenSSL
 
 
+def equals(a, b):
+    if len(a) != len(b):
+        return False
+    result = 0
+    for x, y in zip(a, b):
+        result |= ord(x) ^ ord(y)
+    return result == 0
+
+
 def hmac_sha256(k, m):
     """
     Compute the key and the message with HMAC SHA5256
