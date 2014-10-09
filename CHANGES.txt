@@ -2,6 +2,7 @@ v1.5.5, 2014-10-XX
 ------------------
 
 - Change licence to BSD (issue #24)
+- Rewrite test.py with unittest (issue #27)
 
 v1.5.4, 2014-08-25
 ------------------
