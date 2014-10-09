@@ -32,13 +32,30 @@
 from .openssl import OpenSSL
 
 
-def equals(a, b):
+# For python3
+def _equals_bytes(a, b):
+    if len(a) != len(b):
+        return False
+    result = 0
+    for x, y in zip(a, b):
+        result |= x ^ y
+    return result == 0
+
+
+def _equals_str(a, b):
     if len(a) != len(b):
         return False
     result = 0
     for x, y in zip(a, b):
         result |= ord(x) ^ ord(y)
     return result == 0
+
+
+def equals(a, b):
+    if isinstance(a, str):
+        return _equals_str(a, b)
+    else:
+        return _equals_bytes(a, b)
 
 
 def hmac_sha256(k, m):
