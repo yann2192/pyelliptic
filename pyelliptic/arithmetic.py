@@ -36,7 +36,7 @@ def inv(a, n):
         r = high / low
         nm, new = hm - lm * r, high - low * r
         lm, low, hm, high = nm, new, lm, low
-        return lm % n
+    return lm % n
 
 
 def get_code_string(base):
@@ -60,9 +60,9 @@ def encode(val, base, minlen=0):
     while val > 0:
         result = code_string[val % base] + result
         val /= base
-        if len(result) < minlen:
-            result = code_string[0] * (minlen - len(result)) + result
-            return result
+    if len(result) < minlen:
+        result = code_string[0] * (minlen - len(result)) + result
+    return result
 
 
 def decode(string, base):
@@ -74,7 +74,7 @@ def decode(string, base):
         result *= base
         result += code_string.find(string[0])
         string = string[1:]
-        return result
+    return result
 
 
 def changebase(string, frm, to, minlen=0):
@@ -91,10 +91,10 @@ def base10_add(a, b):
             return base10_double(a[0], a[1])
         else:
             return None
-        m = ((b[1] - a[1]) * inv(b[0] - a[0], P)) % P
-        x = (m * m - a[0] - b[0]) % P
-        y = (m * (a[0] - x) - a[1]) % P
-        return (x, y)
+    m = ((b[1] - a[1]) * inv(b[0] - a[0], P)) % P
+    x = (m * m - a[0] - b[0]) % P
+    y = (m * (a[0] - x) - a[1]) % P
+    return (x, y)
 
 
 def base10_double(a):
