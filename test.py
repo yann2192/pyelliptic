@@ -117,6 +117,31 @@ class TestICIES(unittest.TestCase):
         self.assertEqual(plaintext, alice.decrypt(ciphertext, ciphername="rc4"))
 
 
+class TestECDSA(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def test_ecdsa(self):
+        print("\nTEST: ECDSA")
+        alice = ECC()
+        plaintext = b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        sig = alice.sign(plaintext)
+        print(hexlify(sig))
+        res = ECC(pubkey_x=alice.pubkey_x,
+                  pubkey_y=alice.pubkey_y).verify(sig, plaintext)
+        self.assertTrue(res)
+
+    def test_ecdsa2(self):
+        print("\nTEST: ECDSA 2")
+        alice = ECC()
+        plaintext = b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        sig = b''.join((b'\x00', alice.sign(plaintext)))
+        print(hexlify(sig))
+        res = ECC(pubkey_x=alice.pubkey_x,
+                  pubkey_y=alice.pubkey_y).verify(sig, plaintext)
+        self.assertFalse(res)
+
+
 class TestEquals(unittest.TestCase):
     def setUp(self):
         pass

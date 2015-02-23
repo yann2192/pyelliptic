@@ -363,7 +363,7 @@ class ECC:
                 raise Exception("[OpenSSL] EC_KEY_check_key FAIL ...")
 
             OpenSSL.EVP_MD_CTX_init(md_ctx)
-            OpenSSL.EVP_DigestInit(md_ctx, OpenSSL.EVP_ecdsa())
+            OpenSSL.EVP_DigestInit(md_ctx, OpenSSL.EVP_sha256())
 
             if (OpenSSL.EVP_DigestUpdate(md_ctx, buff, size)) == 0:
                 raise Exception("[OpenSSL] EVP_DigestUpdate FAIL ...")
@@ -417,7 +417,7 @@ class ECC:
                 raise Exception("[OpenSSL] EC_KEY_check_key FAIL ...")
 
             OpenSSL.EVP_MD_CTX_init(md_ctx)
-            OpenSSL.EVP_DigestInit(md_ctx, OpenSSL.EVP_ecdsa())
+            OpenSSL.EVP_DigestInit(md_ctx, OpenSSL.EVP_sha256())
             if (OpenSSL.EVP_DigestUpdate(md_ctx, binputb, len(inputb))) == 0:
                 raise Exception("[OpenSSL] EVP_DigestUpdate FAIL ...")
 
