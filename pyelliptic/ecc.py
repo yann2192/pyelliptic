@@ -363,11 +363,11 @@ class ECC:
                 raise Exception("[OpenSSL] EC_KEY_check_key FAIL ...")
 
             OpenSSL.EVP_MD_CTX_init(md_ctx)
-            OpenSSL.EVP_DigestInit(md_ctx, OpenSSL.EVP_sha256())
+            OpenSSL.EVP_DigestInit_ex(md_ctx, OpenSSL.EVP_sha256(), None)
 
             if (OpenSSL.EVP_DigestUpdate(md_ctx, buff, size)) == 0:
                 raise Exception("[OpenSSL] EVP_DigestUpdate FAIL ...")
-            OpenSSL.EVP_DigestFinal(md_ctx, digest, dgst_len)
+            OpenSSL.EVP_DigestFinal_ex(md_ctx, digest, dgst_len)
             OpenSSL.ECDSA_sign(0, digest, dgst_len.contents, sig, siglen, key)
             if (OpenSSL.ECDSA_verify(0, digest, dgst_len.contents, sig,
                                      siglen.contents, key)) != 1:
@@ -417,11 +417,11 @@ class ECC:
                 raise Exception("[OpenSSL] EC_KEY_check_key FAIL ...")
 
             OpenSSL.EVP_MD_CTX_init(md_ctx)
-            OpenSSL.EVP_DigestInit(md_ctx, OpenSSL.EVP_sha256())
+            OpenSSL.EVP_DigestInit_ex(md_ctx, OpenSSL.EVP_sha256(), None)
             if (OpenSSL.EVP_DigestUpdate(md_ctx, binputb, len(inputb))) == 0:
                 raise Exception("[OpenSSL] EVP_DigestUpdate FAIL ...")
 
-            OpenSSL.EVP_DigestFinal(md_ctx, digest, dgst_len)
+            OpenSSL.EVP_DigestFinal_ex(md_ctx, digest, dgst_len)
             ret = OpenSSL.ECDSA_verify(
                 0, digest, dgst_len.contents, bsig, len(sig), key)
 
