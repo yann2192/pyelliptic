@@ -1,3 +1,10 @@
+v1.5.6, 2015-02-28
+------------------
+
+- replace EVP_DigestInit and EVP_DigestFinal by *_ex (issue #32)
+- SHA256 for sign/verify operations (issue #32)
+- fix arithmetic.py (issue #30)
+
 v1.5.5, 2014-10-09
 ------------------
 
