@@ -30,6 +30,7 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from hashlib import sha512
+from binascii import unhexlify
 from .openssl import OpenSSL
 from .cipher import Cipher
 from .hash import hmac_sha256, equals
@@ -79,12 +80,7 @@ class ECC:
         if pubkey_x is not None and pubkey_y is not None:
             self._set_keys(pubkey_x, pubkey_y, raw_privkey)
         elif pubkey is not None:
-            curve, pubkey_x, pubkey_y, i = ECC._decode_pubkey(pubkey)
-            if privkey is not None:
-                curve2, raw_privkey, i = ECC._decode_privkey(privkey)
-                if curve != curve2:
-                    raise Exception("Bad ECC keys ...")
-            self.curve = curve
+            pubkey_x, pubkey_y = ECC._decode_pubkey(pubkey)
             self._set_keys(pubkey_x, pubkey_y, raw_privkey)
         else:
             self.privkey, self.pubkey_x, self.pubkey_y = self._generate()
@@ -113,53 +109,46 @@ class ECC:
     def get_curve_id(self):
         return self.curve
 
-    def get_pubkey(self):
+    def get_pubkey(self, format='binary'):
         """
         High level function which returns :
-        curve(2) + len_of_pubkeyX(2) + pubkeyX + len_of_pubkeyY + pubkeyY
+        pubkeyX + pubkeyY
         """
-        return b''.join((pack('!H', self.curve),
-                         pack('!H', len(self.pubkey_x)),
-                         self.pubkey_x,
-                         pack('!H', len(self.pubkey_y)),
-                         self.pubkey_y
-                         ))
+        binary = b''.join((
+                             self.pubkey_x,
+                             self.pubkey_y
+                             ))
+
+        if format is 'binary':
+            pubkey = b''.join((binary))
+        elif format is 'hex':
+            pubkey = b'04'+binary.encode('hex')
+        else:
+            raise Exception("[ECC] Unsupported pubkey format ...")
+
+        return pubkey
+
 
     def get_privkey(self):
         """
         High level function which returns
-        curve(2) + len_of_privkey(2) + privkey
+        privkey
         """
-        return b''.join((pack('!H', self.curve),
-                         pack('!H', len(self.privkey)),
+        return b''.join((
                          self.privkey
                          ))
 
     @staticmethod
     def _decode_pubkey(pubkey):
-        i = 0
-        curve = unpack('!H', pubkey[i:i + 2])[0]
-        i += 2
-        tmplen = unpack('!H', pubkey[i:i + 2])[0]
-        i += 2
-        pubkey_x = pubkey[i:i + tmplen]
-        i += tmplen
-        tmplen = unpack('!H', pubkey[i:i + 2])[0]
-        i += 2
-        pubkey_y = pubkey[i:i + tmplen]
-        i += tmplen
-        return curve, pubkey_x, pubkey_y, i
+        binary_key = unhexlify(pubkey)
+        i = len(binary_key)/2+1
+        pubkey_x = binary_key[1:i]
+        pubkey_y = binary_key[i:]
+        return pubkey_x, pubkey_y
 
     @staticmethod
     def _decode_privkey(privkey):
-        i = 0
-        curve = unpack('!H', privkey[i:i + 2])[0]
-        i += 2
-        tmplen = unpack('!H', privkey[i:i + 2])[0]
-        i += 2
-        privkey = privkey[i:i + tmplen]
-        i += tmplen
-        return curve, privkey, i
+        return privkey
 
     def _generate(self):
         try:
@@ -208,10 +197,8 @@ class ECC:
         High level function. Compute public key with the local private key
         and returns a 512bits shared key
         """
-        curve, pubkey_x, pubkey_y, i = ECC._decode_pubkey(pubkey)
-        if curve != self.curve:
-            raise Exception("ECC keys must be from the same curve !")
-        return sha512(self.raw_get_ecdh_key(pubkey_x, pubkey_y)).digest()
+        pubkey_x, pubkey_y = ECC._decode_pubkey(pubkey)
+        return self.raw_get_ecdh_key(pubkey_x, pubkey_y)
 
     def raw_get_ecdh_key(self, pubkey_x, pubkey_y):
         try:
@@ -270,23 +257,15 @@ class ECC:
         Check the public key and the private key.
         The private key is optional (replace by None)
         """
-        curve, pubkey_x, pubkey_y, i = ECC._decode_pubkey(pubkey)
+        pubkey_x, pubkey_y = ECC._decode_pubkey(pubkey)
         if privkey is None:
             raw_privkey = None
-            curve2 = curve
         else:
-            curve2, raw_privkey, i = ECC._decode_privkey(privkey)
-        if curve != curve2:
-            raise Exception("Bad public and private key")
-        return self.raw_check_key(raw_privkey, pubkey_x, pubkey_y, curve)
+            raw_privkey = ECC._decode_privkey(privkey)
+        return self.raw_check_key(raw_privkey, pubkey_x, pubkey_y)
 
-    def raw_check_key(self, privkey, pubkey_x, pubkey_y, curve=None):
-        if curve is None:
-            curve = self.curve
-        elif type(curve) == str:
-            curve = OpenSSL.get_curve(curve)
-        else:
-            curve = curve
+    def raw_check_key(self, privkey, pubkey_x, pubkey_y):
+        curve = self.curve
         try:
             key = OpenSSL.EC_KEY_new_by_curve_name(curve)
             if key == 0:
@@ -442,11 +421,11 @@ class ECC:
             OpenSSL.EVP_MD_CTX_destroy(md_ctx)
 
     @staticmethod
-    def encrypt(data, pubkey, ephemcurve=None, ciphername='aes-256-cbc'):
+    def encrypt(data, pubkey, ephemcurve=None, ciphername='aes-256-cbc', curve=None):
         """
         Encrypt data with ECIES method using the public key of the recipient.
         """
-        curve, pubkey_x, pubkey_y, i = ECC._decode_pubkey(pubkey)
+        pubkey_x, pubkey_y = ECC._decode_pubkey(pubkey)
         return ECC.raw_encrypt(data, pubkey_x, pubkey_y, curve=curve,
                                ephemcurve=ephemcurve, ciphername=ciphername)
 
@@ -472,8 +451,8 @@ class ECC:
         blocksize = OpenSSL.get_cipher(ciphername).get_blocksize()
         iv = data[:blocksize]
         i = blocksize
-        curve, pubkey_x, pubkey_y, i2 = ECC._decode_pubkey(data[i:])
-        i += i2
+        pubkey_x, pubkey_y = ECC._decode_pubkey(data[i:])
+        i += i
         ciphertext = data[i:len(data) - 32]
         i += len(ciphertext)
         mac = data[i:]
