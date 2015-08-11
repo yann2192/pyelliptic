@@ -30,7 +30,7 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from hashlib import sha512
-from binascii import unhexlify
+from binascii import hexlify, unhexlify
 from .openssl import OpenSSL
 from .cipher import Cipher
 from .hash import hmac_sha256, equals
@@ -120,11 +120,11 @@ class ECC:
                              ))
 
         if format is 'binary':
-            pubkey = b''.join((binary))
+            pubkey = b''+unhexlify('04')+binary
         elif format is 'hex':
             pubkey = b'04'+binary.encode('hex')
         else:
-            raise Exception("[ECC] Unsupported pubkey format ...")
+            raise Exception("[ECC] Unsupported pubkey output format ...")
 
         return pubkey
 
@@ -139,8 +139,18 @@ class ECC:
                          ))
 
     @staticmethod
-    def _decode_pubkey(pubkey):
-        binary_key = unhexlify(pubkey)
+    def _decode_pubkey(pubkey, format='binary'):
+        if format is 'binary':
+            binary_key = pubkey
+        elif format is 'hex':
+            binary_key = unhexlify(pubkey)
+        else:
+            raise Exception("[ECC] Unsupported pubkey input format")
+
+        conv_form = binary_key[0:1]
+        if hexlify(conv_form) != '04':
+            raise Exception("[ECC] Unsupported pubkey point conversion form")
+
         i = len(binary_key)/2+1
         pubkey_x = binary_key[1:i]
         pubkey_y = binary_key[i:]
@@ -192,12 +202,12 @@ class ECC:
             OpenSSL.BN_free(pub_key_x)
             OpenSSL.BN_free(pub_key_y)
 
-    def get_ecdh_key(self, pubkey):
+    def get_ecdh_key(self, pubkey, format='binary'):
         """
         High level function. Compute public key with the local private key
-        and returns a 512bits shared key
+        and returns a shared binary key
         """
-        pubkey_x, pubkey_y = ECC._decode_pubkey(pubkey)
+        pubkey_x, pubkey_y = ECC._decode_pubkey(pubkey, format)
         return self.raw_get_ecdh_key(pubkey_x, pubkey_y)
 
     def raw_get_ecdh_key(self, pubkey_x, pubkey_y):
