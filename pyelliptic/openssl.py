@@ -71,6 +71,14 @@ class _OpenSSL:
         self.byref = ctypes.byref
         self.create_string_buffer = ctypes.create_string_buffer
 
+        self.ERR_error_string = self._lib.ERR_error_string
+        self.ERR_error_string.restype = ctypes.c_char_p
+        self.ERR_error_string.argtypes = [ctypes.c_ulong, ctypes.c_char_p]
+
+        self.ERR_get_error = self._lib.ERR_get_error
+        self.ERR_get_error.restype = ctypes.c_ulong
+        self.ERR_get_error.argtypes = []
+
         self.BN_new = self._lib.BN_new
         self.BN_new.restype = ctypes.c_void_p
         self.BN_new.argtypes = []
@@ -91,6 +99,10 @@ class _OpenSSL:
         self.BN_bin2bn.restype = ctypes.c_void_p
         self.BN_bin2bn.argtypes = [ctypes.c_void_p, ctypes.c_int,
                                    ctypes.c_void_p]
+
+        self.EC_GROUP_get_degree = self._lib.EC_GROUP_get_degree
+        self.EC_GROUP_get_degree.restype = ctypes.c_int
+        self.EC_GROUP_get_degree.argtypes = [ctypes.c_void_p]
 
         self.EC_KEY_free = self._lib.EC_KEY_free
         self.EC_KEY_free.restype = None
@@ -503,6 +515,9 @@ class _OpenSSL:
         else:
             buffer = self.create_string_buffer(size)
         return buffer
+
+    def get_error(self):
+        return OpenSSL.ERR_error_string(OpenSSL.ERR_get_error(), None)
 
 libname = ctypes.util.find_library('crypto')
 if libname is None:
