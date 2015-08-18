@@ -34,7 +34,6 @@ from binascii import hexlify, unhexlify
 from .openssl import OpenSSL
 from .cipher import Cipher
 from .hash import hmac_sha256, equals
-import ctypes
 
 
 class ECC:
@@ -183,6 +182,9 @@ class ECC:
                 raise Exception(
                     "[OpenSSL] EC_POINT_get_affine_coordinates_GFp FAIL ... " + OpenSSL.get_error())
 
+            field_size = OpenSSL.EC_GROUP_get_degree(OpenSSL.EC_KEY_get0_group(key))
+            secret_len = (field_size + 7) / 8
+
             privkey = OpenSSL.malloc(0, OpenSSL.BN_num_bytes(priv_key))
             pubkeyx = OpenSSL.malloc(0, OpenSSL.BN_num_bytes(pub_key_x))
             pubkeyy = OpenSSL.malloc(0, OpenSSL.BN_num_bytes(pub_key_y))
@@ -192,6 +194,12 @@ class ECC:
             pubkeyx = pubkeyx.raw
             OpenSSL.BN_bn2bin(pub_key_y, pubkeyy)
             pubkeyy = pubkeyy.raw
+
+            if len(pubkeyx) < secret_len:
+                pubkeyx = pubkeyx.rjust(secret_len, '\0')
+            if len(pubkeyy) < secret_len:
+                pubkeyy = pubkeyy.rjust(secret_len, '\0')
+
             self.raw_check_key(privkey, pubkeyx, pubkeyy)
 
             return privkey, pubkeyx, pubkeyy, key
@@ -222,6 +230,8 @@ class ECC:
 
             other_group = OpenSSL.EC_KEY_get0_group(other_key)
             other_pub_key = OpenSSL.EC_POINT_new(other_group)
+            if (other_pub_key == None):
+                raise Exception("[OpenSSl] EC_POINT_new FAIL ... " + OpenSSL.get_error())
 
             if (OpenSSL.EC_POINT_set_affine_coordinates_GFp(other_group,
                                                             other_pub_key,
@@ -252,9 +262,6 @@ class ECC:
                 raise Exception("[OpenSSL] ECDH keylen FAIL ... " + OpenSSL.get_error())
 
             return ecdh_keybuffer.raw
-
-        except Exception, e:
-            print e
 
         finally:
             OpenSSL.EC_KEY_free(other_key)
@@ -463,7 +470,7 @@ class ECC:
         blocksize = OpenSSL.get_cipher(ciphername).get_blocksize()
         iv = data[:blocksize]
         i = blocksize
-        coord_len = len(self.pubkey_x * 2) + 1
+        coord_len = len(self.pubkey_x) * 2 + 1
         pubkey_x, pubkey_y = ECC._decode_pubkey(data[i:i + coord_len])
         i += coord_len
         ciphertext = data[i:len(data) - 32]
