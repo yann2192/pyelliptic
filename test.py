@@ -103,7 +103,7 @@ class TestICIES(unittest.TestCase):
         print("\nTEST: ECIES")
         alice = ECC()
         plaintext = b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        ciphertext = ECC.encrypt(plaintext, alice.get_pubkey())
+        ciphertext = alice.encrypt(plaintext, alice.get_pubkey())
         print(hexlify(ciphertext))
         self.assertEqual(plaintext, alice.decrypt(ciphertext))
 
@@ -111,7 +111,7 @@ class TestICIES(unittest.TestCase):
         print("\nTEST: ECIES/RC4")
         alice = ECC()
         plaintext = b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        ciphertext = ECC.encrypt(plaintext, alice.get_pubkey(),
+        ciphertext = alice.encrypt(plaintext, alice.get_pubkey(),
                                  ciphername="rc4")
         print(hexlify(ciphertext))
         self.assertEqual(plaintext, alice.decrypt(ciphertext, ciphername="rc4"))
