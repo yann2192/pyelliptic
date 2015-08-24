@@ -85,7 +85,7 @@ class ECC:
                 raw_privkey = ECC._decode_privkey(privkey)
             self._set_keys(pubkey_x, pubkey_y, raw_privkey)
         else:
-            self.privkey, self.pubkey_x, self.pubkey_y, self.selfkey = self._generate()
+            self.privkey, self.pubkey_x, self.pubkey_y = self._generate()
 
     def _set_keys(self, pubkey_x, pubkey_y, privkey):
         if self.raw_check_key(privkey, pubkey_x, pubkey_y) < 0:
@@ -204,7 +204,7 @@ class ECC:
 
             self.raw_check_key(privkey, pubkeyx, pubkeyy)
 
-            return privkey, pubkeyx, pubkeyy, key
+            return privkey, pubkeyx, pubkeyy
 
         finally:
             OpenSSL.EC_KEY_free(key)
