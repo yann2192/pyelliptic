@@ -149,9 +149,9 @@ class ECC:
             raise Exception("[ECC] Unsupported pubkey input format")
 
         conv_form = binary_key[0:1]
-        if hexlify(conv_form) != '04':
+        if hexlify(conv_form) != b'04':
             raise Exception("[ECC] Unsupported pubkey point conversion form")
-        i = len(binary_key) / 2 + 1
+        i = int(len(binary_key) / 2 + 1)
         pubkey_x = binary_key[1:i]
         pubkey_y = binary_key[i:]
         return pubkey_x, pubkey_y
@@ -185,7 +185,7 @@ class ECC:
                     "[OpenSSL] EC_POINT_get_affine_coordinates_GFp FAIL ... " + OpenSSL.get_error())
 
             field_size = OpenSSL.EC_GROUP_get_degree(OpenSSL.EC_KEY_get0_group(key))
-            secret_len = (field_size + 7) / 8
+            secret_len = int((field_size + 7) / 8)
 
             privkey = OpenSSL.malloc(0, OpenSSL.BN_num_bytes(priv_key))
             pubkeyx = OpenSSL.malloc(0, OpenSSL.BN_num_bytes(pub_key_x))
@@ -198,9 +198,9 @@ class ECC:
             pubkeyy = pubkeyy.raw
 
             if len(pubkeyx) < secret_len:
-                pubkeyx = pubkeyx.rjust(secret_len, '\0')
+                pubkeyx = pubkeyx.rjust(secret_len, b'\0')
             if len(pubkeyy) < secret_len:
-                pubkeyy = pubkeyy.rjust(secret_len, '\0')
+                pubkeyy = pubkeyy.rjust(secret_len, b'\0')
 
             self.raw_check_key(privkey, pubkeyx, pubkeyy)
 
