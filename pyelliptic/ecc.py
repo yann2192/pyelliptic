@@ -81,6 +81,8 @@ class ECC:
             self._set_keys(pubkey_x, pubkey_y, raw_privkey)
         elif pubkey is not None:
             pubkey_x, pubkey_y = ECC._decode_pubkey(pubkey)
+            if privkey is not None:
+                raw_privkey = ECC._decode_privkey(privkey)
             self._set_keys(pubkey_x, pubkey_y, raw_privkey)
         else:
             self.privkey, self.pubkey_x, self.pubkey_y, self.selfkey = self._generate()
