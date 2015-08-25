@@ -34,6 +34,7 @@ from binascii import hexlify, unhexlify
 from .openssl import OpenSSL
 from .cipher import Cipher
 from .hash import hmac_sha256, equals
+from struct import pack, unpack
 
 
 class ECC:
@@ -111,7 +112,7 @@ class ECC:
     def get_curve_id(self):
         return self.curve
 
-    def get_pubkey(self, format='binary'):
+    def get_pubkey(self, _format='binary'):
         """
         High level function which returns :
         pubkeyX + pubkeyY
@@ -121,9 +122,9 @@ class ECC:
             self.pubkey_y
         ))
 
-        if format is 'binary':
+        if _format is 'binary':
             pubkey = b'' + unhexlify('04') + binary
-        elif format is 'hex':
+        elif _format is 'hex':
             pubkey = b'04' + binary.encode('hex')
         else:
             raise Exception("[ECC] Unsupported pubkey output format ...")
@@ -135,9 +136,7 @@ class ECC:
         High level function which returns
         privkey
         """
-        return b''.join((
-            self.privkey
-        ))
+        return self.privkey
 
     @staticmethod
     def _decode_pubkey(pubkey, format='binary'):
@@ -159,6 +158,58 @@ class ECC:
     @staticmethod
     def _decode_privkey(privkey):
         return privkey
+
+    def _old_get_pubkey(self):
+        """
+        Old get_pubkey, keeps for compatibility issues.
+        """
+        return b''.join((pack('!H', self.curve),
+                         pack('!H', len(self.pubkey_x)),
+                         self.pubkey_x,
+                         pack('!H', len(self.pubkey_y)),
+                         self.pubkey_y
+                         ))
+
+    def _old_get_privkey(self):
+        """
+        Old get_privkey, keeps for compatibility issues.
+        """
+        return b''.join((pack('!H', self.curve),
+                         pack('!H', len(self.privkey)),
+                         self.privkey
+                         ))
+
+    @staticmethod
+    def _old_decode_pubkey(pubkey):
+        """
+        Converts old exported pubkey to new format
+        """
+        i = 0
+        curve = unpack('!H', pubkey[i:i + 2])[0]
+        i += 2
+        tmplen = unpack('!H', pubkey[i:i + 2])[0]
+        i += 2
+        pubkey_x = pubkey[i:i + tmplen]
+        i += tmplen
+        tmplen = unpack('!H', pubkey[i:i + 2])[0]
+        i += 2
+        pubkey_y = pubkey[i:i + tmplen]
+        i += tmplen
+        return curve, pubkey_x, pubkey_y, i
+
+    @staticmethod
+    def _old_decode_privkey(privkey):
+        """
+        Converts old exported privkey to new format
+        """
+        i = 0
+        curve = unpack('!H', privkey[i:i + 2])[0]
+        i += 2
+        tmplen = unpack('!H', privkey[i:i + 2])[0]
+        i += 2
+        privkey = privkey[i:i + tmplen]
+        i += tmplen
+        return curve, privkey, i
 
     def _generate(self):
         try:

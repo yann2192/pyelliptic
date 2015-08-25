@@ -163,5 +163,19 @@ class TestEquals(unittest.TestCase):
         self.assertFalse(_hash.equals(a, b))
 
 
+class TestCompatibilities(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def test_old_keys(self):
+        alice = ECC()
+        curve, px, py, i = ECC._old_decode_pubkey(alice._old_get_pubkey())
+        curve2, pv, i = ECC._old_decode_privkey(alice._old_get_privkey())
+        self.assertEqual(curve, curve2)
+        alice2 = ECC(curve=curve, pubkey_x=px, pubkey_y=py, raw_privkey=pv)
+        self.assertEqual(alice2.get_pubkey(), alice.get_pubkey())
+        self.assertEqual(alice2.get_privkey(), alice.get_privkey())
+
+
 if __name__ == "__main__":
     unittest.main()
