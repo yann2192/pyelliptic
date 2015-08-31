@@ -31,7 +31,7 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__version__ = '1.5.6'
+__version__ = '1.5.7'
 
 __all__ = [
     'OpenSSL',
