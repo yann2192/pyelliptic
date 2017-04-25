@@ -33,7 +33,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="pyelliptic",
-    version='1.5.7',
+    version='1.5.8',
     url='https://github.com/yann2192/pyelliptic',
     license='BSD',
     description=

@@ -102,5 +102,5 @@ class Cipher:
         return buff + self.final()
 
     def __del__(self):
-        OpenSSL.EVP_CIPHER_CTX_cleanup(self.ctx)
+        OpenSSL.EVP_CIPHER_CTX_reset(self.ctx)
         OpenSSL.EVP_CIPHER_CTX_free(self.ctx)

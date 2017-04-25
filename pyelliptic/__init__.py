@@ -41,6 +41,5 @@ __all__ = [
 ]
 
 from .openssl import OpenSSL
-from .ecc import ECC
 from .cipher import Cipher
 from .hash import hmac_sha256, hmac_sha512, pbkdf2, equals

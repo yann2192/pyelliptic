@@ -33,7 +33,7 @@
 import unittest
 from binascii import hexlify, unhexlify
 
-from pyelliptic import Cipher, ECC
+from pyelliptic import Cipher
 from pyelliptic import hash as _hash
 
 
@@ -95,53 +95,6 @@ class TestCipher(unittest.TestCase):
         self.assertEqual(plaintext, ctx.ciphering(enc))
 
 
-class TestICIES(unittest.TestCase):
-    def setUp(self):
-        pass
-
-    def test_ecies(self):
-        print("\nTEST: ECIES")
-        alice = ECC()
-        plaintext = b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        ciphertext = alice.encrypt(plaintext, alice.get_pubkey())
-        print(hexlify(ciphertext))
-        self.assertEqual(plaintext, alice.decrypt(ciphertext))
-
-    def test_ecies_rc4(self):
-        print("\nTEST: ECIES/RC4")
-        alice = ECC()
-        plaintext = b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        ciphertext = alice.encrypt(plaintext, alice.get_pubkey(),
-                                 ciphername="rc4")
-        print(hexlify(ciphertext))
-        self.assertEqual(plaintext, alice.decrypt(ciphertext, ciphername="rc4"))
-
-
-class TestECDSA(unittest.TestCase):
-    def setUp(self):
-        pass
-
-    def test_ecdsa(self):
-        print("\nTEST: ECDSA")
-        alice = ECC()
-        plaintext = b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        sig = alice.sign(plaintext)
-        print(hexlify(sig))
-        res = ECC(pubkey_x=alice.pubkey_x,
-                  pubkey_y=alice.pubkey_y).verify(sig, plaintext)
-        self.assertTrue(res)
-
-    def test_ecdsa2(self):
-        print("\nTEST: ECDSA 2")
-        alice = ECC()
-        plaintext = b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        sig = b''.join((b'\x00', alice.sign(plaintext)))
-        print(hexlify(sig))
-        res = ECC(pubkey_x=alice.pubkey_x,
-                  pubkey_y=alice.pubkey_y).verify(sig, plaintext)
-        self.assertFalse(res)
-
-
 class TestEquals(unittest.TestCase):
     def setUp(self):
         pass
@@ -161,20 +114,6 @@ class TestEquals(unittest.TestCase):
 
         b = '\xb4\x85/\xe80\xfa\x04\xdf\x07\x83\x17P\x9dw\x02'
         self.assertFalse(_hash.equals(a, b))
-
-
-class TestCompatibilities(unittest.TestCase):
-    def setUp(self):
-        pass
-
-    def test_old_keys(self):
-        alice = ECC()
-        curve, px, py, i = ECC._old_decode_pubkey(alice._old_get_pubkey())
-        curve2, pv, i = ECC._old_decode_privkey(alice._old_get_privkey())
-        self.assertEqual(curve, curve2)
-        alice2 = ECC(curve=curve, pubkey_x=px, pubkey_y=py, raw_privkey=pv)
-        self.assertEqual(alice2.get_pubkey(), alice.get_pubkey())
-        self.assertEqual(alice2.get_privkey(), alice.get_privkey())
 
 
 if __name__ == "__main__":

@@ -1,3 +1,9 @@
+## WARNING
+
+PyElliptic is **DEPRECATED**.
+
+See https://github.com/yann2192/pyelliptic/issues/50
+
 # PyElliptic
 
 PyElliptic is a high level wrapper for the cryptographic library : OpenSSL.
@@ -5,12 +11,6 @@ Under the Berkeley software distribution license (see LICENSE).
 
 Python3 compatible. For GNU/Linux and Windows.
 Require OpenSSL
-
-## WARNING
-
-Backward incompatibility in release 1.5.7.
-
-See issue https://github.com/yann2192/pyelliptic/issues/39 .
 
 ## Features
 

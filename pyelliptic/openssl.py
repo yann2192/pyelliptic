@@ -79,123 +79,6 @@ class _OpenSSL:
         self.ERR_get_error.restype = ctypes.c_ulong
         self.ERR_get_error.argtypes = []
 
-        self.BN_new = self._lib.BN_new
-        self.BN_new.restype = ctypes.c_void_p
-        self.BN_new.argtypes = []
-
-        self.BN_free = self._lib.BN_free
-        self.BN_free.restype = None
-        self.BN_free.argtypes = [ctypes.c_void_p]
-
-        self.BN_num_bits = self._lib.BN_num_bits
-        self.BN_num_bits.restype = ctypes.c_int
-        self.BN_num_bits.argtypes = [ctypes.c_void_p]
-
-        self.BN_bn2bin = self._lib.BN_bn2bin
-        self.BN_bn2bin.restype = ctypes.c_int
-        self.BN_bn2bin.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
-
-        self.BN_bin2bn = self._lib.BN_bin2bn
-        self.BN_bin2bn.restype = ctypes.c_void_p
-        self.BN_bin2bn.argtypes = [ctypes.c_void_p, ctypes.c_int,
-                                   ctypes.c_void_p]
-
-        self.EC_GROUP_get_degree = self._lib.EC_GROUP_get_degree
-        self.EC_GROUP_get_degree.restype = ctypes.c_int
-        self.EC_GROUP_get_degree.argtypes = [ctypes.c_void_p]
-
-        self.EC_KEY_free = self._lib.EC_KEY_free
-        self.EC_KEY_free.restype = None
-        self.EC_KEY_free.argtypes = [ctypes.c_void_p]
-
-        self.EC_KEY_new_by_curve_name = self._lib.EC_KEY_new_by_curve_name
-        self.EC_KEY_new_by_curve_name.restype = ctypes.c_void_p
-        self.EC_KEY_new_by_curve_name.argtypes = [ctypes.c_int]
-
-        self.EC_KEY_generate_key = self._lib.EC_KEY_generate_key
-        self.EC_KEY_generate_key.restype = ctypes.c_int
-        self.EC_KEY_generate_key.argtypes = [ctypes.c_void_p]
-
-        self.EC_KEY_check_key = self._lib.EC_KEY_check_key
-        self.EC_KEY_check_key.restype = ctypes.c_int
-        self.EC_KEY_check_key.argtypes = [ctypes.c_void_p]
-
-        self.EC_KEY_get0_private_key = self._lib.EC_KEY_get0_private_key
-        self.EC_KEY_get0_private_key.restype = ctypes.c_void_p
-        self.EC_KEY_get0_private_key.argtypes = [ctypes.c_void_p]
-
-        self.EC_KEY_get0_public_key = self._lib.EC_KEY_get0_public_key
-        self.EC_KEY_get0_public_key.restype = ctypes.c_void_p
-        self.EC_KEY_get0_public_key.argtypes = [ctypes.c_void_p]
-
-        self.EC_KEY_get0_group = self._lib.EC_KEY_get0_group
-        self.EC_KEY_get0_group.restype = ctypes.c_void_p
-        self.EC_KEY_get0_group.argtypes = [ctypes.c_void_p]
-
-        self.EC_POINT_get_affine_coordinates_GFp = self._lib.EC_POINT_get_affine_coordinates_GFp
-        self.EC_POINT_get_affine_coordinates_GFp.restype = ctypes.c_int
-        self.EC_POINT_get_affine_coordinates_GFp.argtypes = 5 * [ctypes.c_void_p]
-
-        self.EC_KEY_set_private_key = self._lib.EC_KEY_set_private_key
-        self.EC_KEY_set_private_key.restype = ctypes.c_int
-        self.EC_KEY_set_private_key.argtypes = [ctypes.c_void_p,
-                                                ctypes.c_void_p]
-
-        self.EC_KEY_set_public_key = self._lib.EC_KEY_set_public_key
-        self.EC_KEY_set_public_key.restype = ctypes.c_int
-        self.EC_KEY_set_public_key.argtypes = [ctypes.c_void_p,
-                                               ctypes.c_void_p]
-
-        self.EC_KEY_set_group = self._lib.EC_KEY_set_group
-        self.EC_KEY_set_group.restype = ctypes.c_int
-        self.EC_KEY_set_group.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
-
-        self.EC_POINT_set_affine_coordinates_GFp = self._lib.EC_POINT_set_affine_coordinates_GFp
-        self.EC_POINT_set_affine_coordinates_GFp.restype = ctypes.c_int
-        self.EC_POINT_set_affine_coordinates_GFp.argtypes = 5 * [ctypes.c_void_p]
-
-        self.EC_POINT_new = self._lib.EC_POINT_new
-        self.EC_POINT_new.restype = ctypes.c_void_p
-        self.EC_POINT_new.argtypes = [ctypes.c_void_p]
-
-        self.EC_POINT_free = self._lib.EC_POINT_free
-        self.EC_POINT_free.restype = None
-        self.EC_POINT_free.argtypes = [ctypes.c_void_p]
-
-        self.BN_CTX_free = self._lib.BN_CTX_free
-        self.BN_CTX_free.restype = None
-        self.BN_CTX_free.argtypes = [ctypes.c_void_p]
-
-        self.EC_POINT_mul = self._lib.EC_POINT_mul
-        self.EC_POINT_mul.restype = ctypes.c_int
-        self.EC_POINT_mul.argtypes = [ctypes.c_void_p, ctypes.c_void_p,
-                                      ctypes.c_void_p, ctypes.c_void_p,
-                                      ctypes.c_void_p, ctypes.c_void_p]
-
-        self.EC_KEY_set_private_key = self._lib.EC_KEY_set_private_key
-        self.EC_KEY_set_private_key.restype = ctypes.c_int
-        self.EC_KEY_set_private_key.argtypes = [ctypes.c_void_p,
-                                                ctypes.c_void_p]
-
-        self.ECDH_OpenSSL = self._lib.ECDH_OpenSSL
-        self._lib.ECDH_OpenSSL.restype = ctypes.c_void_p
-        self._lib.ECDH_OpenSSL.argtypes = []
-
-        self.BN_CTX_new = self._lib.BN_CTX_new
-        self._lib.BN_CTX_new.restype = ctypes.c_void_p
-        self._lib.BN_CTX_new.argtypes = []
-
-        self.ECDH_set_method = self._lib.ECDH_set_method
-        self._lib.ECDH_set_method.restype = ctypes.c_int
-        self._lib.ECDH_set_method.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
-
-        self.ECDH_compute_key = self._lib.ECDH_compute_key
-        self.ECDH_compute_key.restype = ctypes.c_int
-        self.ECDH_compute_key.argtypes = [ctypes.c_void_p,
-                                          ctypes.c_int,
-                                          ctypes.c_void_p,
-                                          ctypes.c_void_p]
-
         self.EVP_CipherInit_ex = self._lib.EVP_CipherInit_ex
         self.EVP_CipherInit_ex.restype = ctypes.c_int
         self.EVP_CipherInit_ex.argtypes = [ctypes.c_void_p,
@@ -258,9 +141,9 @@ class _OpenSSL:
         self.EVP_rc4.restype = ctypes.c_void_p
         self.EVP_rc4.argtypes = []
 
-        self.EVP_CIPHER_CTX_cleanup = self._lib.EVP_CIPHER_CTX_cleanup
-        self.EVP_CIPHER_CTX_cleanup.restype = ctypes.c_int
-        self.EVP_CIPHER_CTX_cleanup.argtypes = [ctypes.c_void_p]
+        self.EVP_CIPHER_CTX_reset = self._lib.EVP_CIPHER_CTX_reset
+        self.EVP_CIPHER_CTX_reset.restype = ctypes.c_int
+        self.EVP_CIPHER_CTX_reset.argtypes = [ctypes.c_void_p]
 
         self.EVP_CIPHER_CTX_free = self._lib.EVP_CIPHER_CTX_free
         self.EVP_CIPHER_CTX_free.restype = None
@@ -302,40 +185,6 @@ class _OpenSSL:
         self.EVP_DigestFinal_ex.argtypes = [ctypes.c_void_p,
                                             ctypes.c_void_p, ctypes.c_void_p]
 
-        self.EVP_ecdsa = self._lib.EVP_ecdsa
-        self._lib.EVP_ecdsa.restype = ctypes.c_void_p
-        self._lib.EVP_ecdsa.argtypes = []
-
-        self.ECDSA_sign = self._lib.ECDSA_sign
-        self.ECDSA_sign.restype = ctypes.c_int
-        self.ECDSA_sign.argtypes = [ctypes.c_int,
-                                    ctypes.c_void_p,
-                                    ctypes.c_int,
-                                    ctypes.c_void_p,
-                                    ctypes.c_void_p,
-                                    ctypes.c_void_p]
-
-        self.ECDSA_verify = self._lib.ECDSA_verify
-        self.ECDSA_verify.restype = ctypes.c_int
-        self.ECDSA_verify.argtypes = [ctypes.c_int,
-                                      ctypes.c_void_p,
-                                      ctypes.c_int,
-                                      ctypes.c_void_p,
-                                      ctypes.c_int,
-                                      ctypes.c_void_p]
-
-        self.EVP_MD_CTX_create = self._lib.EVP_MD_CTX_create
-        self.EVP_MD_CTX_create.restype = ctypes.c_void_p
-        self.EVP_MD_CTX_create.argtypes = []
-
-        self.EVP_MD_CTX_init = self._lib.EVP_MD_CTX_init
-        self.EVP_MD_CTX_init.restype = None
-        self.EVP_MD_CTX_init.argtypes = [ctypes.c_void_p]
-
-        self.EVP_MD_CTX_destroy = self._lib.EVP_MD_CTX_destroy
-        self.EVP_MD_CTX_destroy.restype = None
-        self.EVP_MD_CTX_destroy.argtypes = [ctypes.c_void_p]
-
         self.RAND_bytes = self._lib.RAND_bytes
         self.RAND_bytes.restype = ctypes.c_int
         self.RAND_bytes.argtypes = [ctypes.c_void_p, ctypes.c_int]
@@ -343,10 +192,6 @@ class _OpenSSL:
         self.EVP_sha256 = self._lib.EVP_sha256
         self.EVP_sha256.restype = ctypes.c_void_p
         self.EVP_sha256.argtypes = []
-
-        self.i2o_ECPublicKey = self._lib.i2o_ECPublicKey
-        self.i2o_ECPublicKey.restype = ctypes.c_int
-        self.i2o_ECPublicKey.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
 
         self.EVP_sha512 = self._lib.EVP_sha512
         self.EVP_sha512.restype = ctypes.c_void_p
@@ -370,7 +215,6 @@ class _OpenSSL:
                                            ctypes.c_int, ctypes.c_void_p]
 
         self._set_ciphers()
-        self._set_curves()
 
     def _set_ciphers(self):
         self.cipher_algo = {
@@ -423,48 +267,6 @@ class _OpenSSL:
                 16
             )
 
-    def _set_curves(self):
-        self.curves = {
-            'secp112r1': 704,
-            'secp112r2': 705,
-            'secp128r1': 706,
-            'secp128r2': 707,
-            'secp160k1': 708,
-            'secp160r1': 709,
-            'secp160r2': 710,
-            'secp192k1': 711,
-            'secp224k1': 712,
-            'secp224r1': 713,
-            'secp256k1': 714,
-            'secp384r1': 715,
-            'secp521r1': 716,
-            'sect113r1': 717,
-            'sect113r2': 718,
-            'sect131r1': 719,
-            'sect131r2': 720,
-            'sect163k1': 721,
-            'sect163r1': 722,
-            'sect163r2': 723,
-            'sect193r1': 724,
-            'sect193r2': 725,
-            'sect233k1': 726,
-            'sect233r1': 727,
-            'sect239k1': 728,
-            'sect283k1': 729,
-            'sect283r1': 730,
-            'sect409k1': 731,
-            'sect409r1': 732,
-            'sect571k1': 733,
-            'sect571r1': 734,
-            'prime256v1': 415,
-        }
-
-    def BN_num_bytes(self, x):
-        """
-        returns the length of a BN (OpenSSl API)
-        """
-        return int((self.BN_num_bits(x) + 7) / 8)
-
     def get_cipher(self, name):
         """
         returns the OpenSSL cipher instance
@@ -472,27 +274,6 @@ class _OpenSSL:
         if name not in self.cipher_algo:
             raise Exception("Unknown cipher")
         return self.cipher_algo[name]
-
-    def get_curve(self, name):
-        """
-        returns the id of a elliptic curve
-        """
-        if name not in self.curves:
-            raise Exception("Unknown curve")
-        return self.curves[name]
-
-    def get_curve_by_id(self, id):
-        """
-        returns the name of a elliptic curve with his id
-        """
-        res = None
-        for i in self.curves:
-            if self.curves[i] == id:
-                res = i
-                break
-        if res is None:
-            raise Exception("Unknown curve")
-        return res
 
     def rand(self, size):
         """
@@ -518,6 +299,7 @@ class _OpenSSL:
 
     def get_error(self):
         return OpenSSL.ERR_error_string(OpenSSL.ERR_get_error(), None)
+
 
 libname = ctypes.util.find_library('crypto')
 if libname is None:
